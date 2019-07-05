@@ -4,6 +4,7 @@ const fs = require('fs');
 const url = require('url');
 const path = require('path');
 const http = require('http');
+const WebSocket = require('ws');
 
 // ----------------------------------
 // Generate map of all known mimetypes
@@ -24,6 +25,7 @@ const defaults = {
   fallback: 'index.html',
   port: 8080,
   cmdPort: 6969,
+  watchPort: 7000,
   reloadPort: 5000,
   browser: 'yes'
 };
@@ -46,7 +48,15 @@ const options = Object.entries(defaults).reduce(
   {}
 );
 
-const { root, fallback, port, reloadPort, browser, cmdPort } = options;
+const {
+  root,
+  fallback,
+  port,
+  reloadPort,
+  browser,
+  cmdPort,
+  watchPort
+} = options;
 const cwd = process.cwd();
 
 // ----------------------------------
@@ -60,6 +70,13 @@ const reloadScript = `
 
     window.server = {
         run: body => new Promise((resolve) => fetch('http://localhost:${cmdPort}', { method: 'POST', body }).then(res => res.text()).then(resolve)),
+        watch: (command, cb) => {
+          const socket = new WebSocket('ws://localhost:${watchPort}');
+          socket.addEventListener('open', (event) => {
+              socket.send(command);
+          });
+          socket.addEventListener('message', event => cb(event.data));
+        }
     }
   </script>
 `;
@@ -143,6 +160,27 @@ http
     });
   })
   .listen(parseInt(cmdPort, 10));
+
+// ----------------------------------
+// Start command watching server
+// ----------------------------------
+const wss = new WebSocket.Server({
+  port: watchPort
+});
+wss.on('connection', socket => {
+  socket.on('message', message => {
+    console.log(message);
+    const proc = require('child_process').exec(
+      message,
+      (err, stdout, stderr) => {
+        if (err) {
+          return console.error(err);
+        }
+        socket.send(stdout);
+      }
+    );
+  });
+});
 
 // ----------------------------------
 // Start static file server
