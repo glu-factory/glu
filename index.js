@@ -70,12 +70,27 @@ const reloadScript = `
 
     window.glu = {
         run: body => new Promise((resolve) => fetch('http://localhost:${cmdPort}', { method: 'POST', body }).then(res => res.text()).then(resolve)),
-        watch: (command, cb) => {
+        watch: (command, args = [], cb) => {
           const socket = new WebSocket('ws://localhost:${watchPort}');
           socket.addEventListener('open', (event) => {
-              socket.send(command);
+              socket.send(JSON.stringify({
+                command,
+                args
+              }));
           });
-          socket.addEventListener('message', event => cb(event.data));
+          socket.addEventListener('message', event => {
+            if (event.data instanceof Blob) {
+              reader = new FileReader();
+      
+              reader.onload = () => {
+                cb(reader.result);
+              };
+      
+              reader.readAsText(event.data);
+            } else {
+              cb(event.data);
+            }
+          });
         }
     }
   </script>
@@ -169,16 +184,11 @@ const wss = new WebSocket.Server({
 });
 wss.on('connection', socket => {
   socket.on('message', message => {
-    console.log(message);
-    const proc = require('child_process').exec(
-      message,
-      (err, stdout, stderr) => {
-        if (err) {
-          return console.error(err);
-        }
-        socket.send(stdout);
-      }
-    );
+    const { command, args } = JSON.parse(message);
+    const proc = require('child_process').spawn(command, args);
+    proc.stdout.on('data', stdout => {
+      socket.send(stdout);
+    });
   });
 });
 
@@ -201,7 +211,7 @@ http
       // Respond with the contents of the file
       fs.readFile(uri, 'binary', (err, file) => {
         if (err) return sendError(res, resource, 500);
-        if (isRoute) file += reloadScript;
+        if (isRoute) file = reloadScript + file;
         sendFile(res, resource, status, file, ext);
       });
     });

@@ -1,0 +1,13 @@
+<html>
+  <head></head>
+  <body>
+    <div>Count from node process: <span id="count">0</span></div>
+
+    <script>
+      const span = document.getElementById('count');
+      glu.watch('node', ['examples/subscriptions/node.js'], data => {
+        span.innerHTML = data;
+      });
+    </script>
+  </body>
+</html>
