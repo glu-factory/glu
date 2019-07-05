@@ -68,7 +68,7 @@ const reloadScript = `
     const source = new EventSource('http://localhost:${reloadPort}');
     source.onmessage = e => location.reload(true);
 
-    window.server = {
+    window.glu = {
         run: body => new Promise((resolve) => fetch('http://localhost:${cmdPort}', { method: 'POST', body }).then(res => res.text()).then(resolve)),
         watch: (command, cb) => {
           const socket = new WebSocket('ws://localhost:${watchPort}');
