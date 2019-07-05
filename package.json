@@ -1,0 +1,11 @@
+{
+  "name": "glu",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:lukejacksonn/glu.git",
+  "author": "Alex Saunders <alex.saunders@formidable.com>",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^7.0.1"
+  }
+}
