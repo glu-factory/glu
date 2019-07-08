@@ -24,7 +24,6 @@ const defaults = {
   root: ".",
   fallback: "index.html",
   port: 8080,
-  cmdPort: 6969,
   subPort: 1337,
   reloadPort: 5000,
   browser: "yes"
@@ -48,7 +47,7 @@ const options = Object.entries(defaults).reduce(
   {}
 );
 
-const { root, fallback, port, reloadPort, browser, cmdPort, subPort } = options;
+const { root, fallback, port, reloadPort, browser, subPort } = options;
 const cwd = process.cwd();
 
 // ----------------------------------
@@ -59,12 +58,16 @@ const reloadScript = `
   <script>
     const source = new EventSource('http://localhost:${reloadPort}');
     source.onmessage = e => location.reload(true);
-    window.glu = {
-        run: body => fetch('http://localhost:${cmdPort}', { method: 'POST', body }).then(res => res.text()),
-        sub: (cmd, cb) => {
-            const socket = new WebSocket('ws://localhost:${subPort}');
-            socket.addEventListener('message', ({ data }) => cb(data));
-            socket.addEventListener('open', () => socket.send(cmd));
+    window.glu = body => {
+        const socket = new WebSocket('ws://localhost:${subPort}');
+        const off = () => socket.close()
+        socket.addEventListener('open', () => socket.send(body));
+        return {
+            on: cb => socket.addEventListener('message', ({ data }) => cb(data, off)),
+            once: cb => socket.addEventListener('message', ({ data }) => {
+                cb(data);
+                off();
+            })
         }
     }
   </script>
@@ -129,28 +132,6 @@ http
 
 // ----------------------------------
 // Start command running server
-// ----------------------------------
-
-http
-  .createServer((req, res) => {
-    res.writeHead(200, {
-      "Cache-Control": "no-cache",
-      "Access-Control-Allow-Origin": "*"
-    });
-    req.on("data", cmd => {
-      let stdout;
-      try {
-        stdout = require("child_process").execSync(cmd.toString());
-      } catch (e) {
-        stdout = e.toString();
-      }
-      res.end(stdout);
-    });
-  })
-  .listen(parseInt(cmdPort, 10));
-
-// ----------------------------------
-// Start command watching server
 // ----------------------------------
 
 new WebSocket.Server({ port: subPort }).on("connection", socket => {

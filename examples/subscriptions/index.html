@@ -1,19 +1,19 @@
 <html>
   <head></head>
   <body>
-    <div>Node Version: <span id="nodev">0.0.0</span></div>
-    <div>Current directory: <span id="cwd">/</span></div>
-    <div>Count from node process: <span id="count">0</span></div>
+    <div>Node Version: <span id="nodev"></span></div>
+    <div>Current directory: <span id="cwd"></span></div>
+    <div>Count from node process: <span id="count"></span></div>
     <script>
       const nodev = document.getElementById("nodev");
       const cwd = document.getElementById("cwd");
       const count = document.getElementById("count");
-      glu.run("node -v").then(data => (nodev.innerHTML = data));
-      glu.run("pwd").then(data => (cwd.innerHTML = data));
-      glu.sub(
-        "node examples/subscriptions/node.js",
-        data => (count.innerHTML = data)
-      );
+      glu("node -v").once(data => (nodev.innerHTML = data));
+      glu("pwd").once(data => (cwd.innerHTML = data));
+      glu("node examples/subscriptions/node.js").on((data, off) => {
+        count.innerHTML = data;
+        parseInt(data) === 10 && off();
+      });
     </script>
   </body>
 </html>
