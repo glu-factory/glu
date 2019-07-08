@@ -4,6 +4,7 @@ const fs = require("fs");
 const url = require("url");
 const path = require("path");
 const http = require("http");
+const WebSocket = require("ws");
 
 // ----------------------------------
 // Generate map of all known mimetypes
@@ -23,7 +24,7 @@ const defaults = {
   root: ".",
   fallback: "index.html",
   port: 8080,
-  cmdPort: 6969,
+  subPort: 1337,
   reloadPort: 5000,
   browser: "yes"
 };
@@ -46,7 +47,7 @@ const options = Object.entries(defaults).reduce(
   {}
 );
 
-const { root, fallback, port, reloadPort, browser, cmdPort } = options;
+const { root, fallback, port, reloadPort, browser, subPort } = options;
 const cwd = process.cwd();
 
 // ----------------------------------
@@ -57,9 +58,17 @@ const reloadScript = `
   <script>
     const source = new EventSource('http://localhost:${reloadPort}');
     source.onmessage = e => location.reload(true);
-
-    window.server = {
-        run: body => fetch('http://localhost:${cmdPort}', { method: 'POST', body }),
+    window.glu = body => {
+        const socket = new WebSocket('ws://localhost:${subPort}');
+        const off = () => socket.close()
+        socket.addEventListener('open', () => socket.send(body));
+        return {
+            on: cb => socket.addEventListener('message', ({ data }) => cb(data, off)),
+            once: cb => socket.addEventListener('message', ({ data }) => {
+                cb(data);
+                off();
+            })
+        }
     }
   </script>
 `;
@@ -125,24 +134,14 @@ http
 // Start command running server
 // ----------------------------------
 
-http
-  .createServer((request, res) => {
-    res.writeHead(200, {
-      "Cache-Control": "no-cache",
-      "Access-Control-Allow-Origin": "*"
-    });
-    request.on("data", function(chunk) {
-      let reply;
-      try {
-        // Execute the command
-        reply = require("child_process").execSync(chunk.toString());
-      } catch (e) {
-        console.log(e);
-      }
-      res.end(reply);
-    });
-  })
-  .listen(parseInt(cmdPort, 10));
+new WebSocket.Server({ port: subPort }).on("connection", socket => {
+  socket.on("message", body => {
+    const [cmd, ...args] = body.split(" ");
+    const proc = require("child_process").spawn(cmd, args);
+    proc.stdout.on("data", stdout => socket.send(stdout.toString()));
+    proc.on("error", e => socket.send(e.toString()));
+  });
+});
 
 // ----------------------------------
 // Start static file server
@@ -163,7 +162,7 @@ http
       // Respond with the contents of the file
       fs.readFile(uri, "binary", (err, file) => {
         if (err) return sendError(res, resource, 500);
-        if (isRoute) file += reloadScript;
+        if (isRoute) file = reloadScript + file;
         sendFile(res, resource, status, file, ext);
       });
     });
@@ -182,12 +181,16 @@ console.log(` ♻️  Reloading the browser when files under ./${root} change`);
 // Open the page in the default browser
 // ----------------------------------
 
-const page = `http://localhost:${port}`;
-const open =
-  process.platform == "darwin"
-    ? "open"
-    : process.platform == "win32"
-    ? "start"
-    : "xdg-open";
+// const page = `http://localhost:${port}`;
+// const open =
+//   process.platform == "darwin"
+//     ? "open"
+//     : process.platform == "win32"
+//     ? "start"
+//     : "xdg-open";
 
-browser !== "no" && require("child_process").exec(open + " " + page);
+// browser !== "no" && require("child_process").exec(open + " " + page);
+
+require("child_process").exec(
+  `/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --app='http://localhost:${port}'`
+);
