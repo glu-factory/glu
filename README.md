@@ -12,7 +12,7 @@ The difference between this implementation compared to more typical approach (su
 - No boilerplate or setup required
 - No wrappers around node modules
 
-This allows you to add native functionality to almost any web application. Your app will be launched in a chromeless browser from where you can call on the command line using via glu! In addition to this, glu includes a static file server with live reload and history API fallback behavior built in. So you can start developing straight away with zero setup.
+This allows you to add native functionality to almost any local web application. Your app will be launched in a chromeless browser from where you can call on the command line using via Glu! In addition to this, Glu includes a static file server with live reload and history API fallback behavior built in, providing a fast and zero-config development environment out of the box.
 
 ## Usage
 
