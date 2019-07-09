@@ -72,9 +72,12 @@ const glu = body => {
   }
 
   return cb => {
-    (async () => {
-      for await (const response of getResponse()) cb(response, off);
-    })();
+    return new Promise(resolve => {
+      socket.addEventListener('close', resolve);
+      (async () => {
+        for await (const response of getResponse()) cb(response, off);
+      })();
+    });
   };
 };
 
@@ -156,6 +159,7 @@ new WebSocket.Server({ port: subPort }).on('connection', socket => {
     const proc = require('child_process').spawn(cmd, args);
     proc.stdout.on('data', stdout => socket.send(stdout.toString()));
     proc.on('error', e => socket.send(e.toString()));
+    proc.on('exit', e => socket.close(e.code));
   });
 });
 

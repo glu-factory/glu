@@ -13,7 +13,7 @@
       glu('node examples/subscriptions/node.js')((data, off) => {
         count.innerHTML = data;
         parseInt(data) === 10 && off();
-      });
+      }).then(() => console.log('DONE'));
     </script>
   </body>
 </html>
