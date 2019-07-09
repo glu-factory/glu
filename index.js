@@ -55,7 +55,7 @@ const cwd = process.cwd();
 // ----------------------------------
 
 const glu = body => {
-  const socket = new WebSocket(`ws://localhost:1337`);
+  const socket = new WebSocket(`ws://localhost:${SUB_PORT}`);
   const off = () => socket.close();
   socket.addEventListener('open', () => socket.send(body));
 
@@ -85,10 +85,8 @@ const reloadScript = `
   <script>
     const source = new EventSource('http://localhost:${reloadPort}');
     source.onmessage = e => location.reload(true);
-    
-    
+    const SUB_PORT = ${subPort};
     window.glu = ${glu.toString()}
-    
   </script>
 `;
 

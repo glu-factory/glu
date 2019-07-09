@@ -15,7 +15,7 @@
       glu('node examples/subscriptions/node.js')((data, off) => {
         setNode('count')(data);
         parseInt(data) === 10 && off();
-      }).then(setNode('done')('DONE'));
+      }).then(() => setNode('done')('DONE'));
     </script>
   </body>
 </html>
