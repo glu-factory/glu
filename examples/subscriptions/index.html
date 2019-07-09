@@ -4,16 +4,18 @@
     <div>Node Version: <span id="nodev"></span></div>
     <div>Current directory: <span id="cwd"></span></div>
     <div>Count from node process: <span id="count"></span></div>
+    <span id="done"></span>
     <script>
-      const nodev = document.getElementById('nodev');
-      const cwd = document.getElementById('cwd');
-      const count = document.getElementById('count');
-      glu('node -v')(data => (nodev.innerHTML = data));
-      glu('pwd')(data => (cwd.innerHTML = data));
+      const setNode = id => content =>
+        (document.getElementById(id).innerHTML = content);
+
+      glu('node -v')(setNode('nodev'));
+      glu('pwd')(setNode('cwd'));
+
       glu('node examples/subscriptions/node.js')((data, off) => {
-        count.innerHTML = data;
+        setNode('count')(data);
         parseInt(data) === 10 && off();
-      }).then(() => console.log('DONE'));
+      }).then(setNode('done')('DONE'));
     </script>
   </body>
 </html>
