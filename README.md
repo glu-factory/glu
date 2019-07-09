@@ -1,6 +1,6 @@
 # glu
 
-> binding together web and native
+> binding web with native
 
 This library provides a generalised means of developing distributable, super lightweight hybrid apps. It trivialises making system level functions calls from browser based user interfaces.
 
