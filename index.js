@@ -4,7 +4,8 @@ const fs = require('fs');
 const url = require('url');
 const path = require('path');
 const http = require('http');
-const WebSocket = require('ws');
+const ws = require('ws');
+const cproc = require('child_process');
 
 // ----------------------------------
 // Generate map of all known mimetypes
@@ -20,35 +21,30 @@ const mime = Object.entries(require('./types.json')).reduce(
 // Parse arguments from the command line
 // ----------------------------------
 
-const defaults = {
-  root: '.',
-  fallback: 'index.html',
-  port: 8080,
-  subPort: 1337,
-  reloadPort: 5000,
-  browser: 'yes'
-};
+const args = process.argv.slice(2).filter(x => !~x.indexOf('--'));
 
-const input = process.argv.slice(2).join(' ');
-// Extract positional arguments
-const args = input
-  .replace(/--([^\s]*)\s[^\s]*(\s)?/g, '')
-  .trim()
-  .split(' ');
-// Extract named arguments
-const named = (input.match(/--([^\s]*)\s[^\s]*/g, '') || []).reduce((a, b) => {
-  const [key, value] = b.split(' ');
-  return Object.assign(a, { [key.replace('--', '')]: value });
-}, {});
-
-const options = Object.entries(defaults).reduce(
-  (opts, [key, val], i) =>
-    Object.assign(opts, { [key]: named[key] || args[i] || val }),
-  {}
-);
-
-const { root, fallback, port, reloadPort, browser, subPort } = options;
+const root = args[0] || '.';
+const fallback = args[1] || 'index.html';
+const port = args[2] || 8080;
+const subPort = args[3] || 1337;
+const reloadPort = args[4] || 5000;
+const init = !!~process.argv.indexOf('--init');
 const cwd = process.cwd();
+
+// ----------------------------------
+// Create an example app if --init
+// ----------------------------------
+
+if (init) {
+  const id = `glu-${Math.random()
+    .toString(16)
+    .replace('0.', '')
+    .slice(5)}`;
+  cproc.execSync(
+    `mkdir ${id} && cp ${__dirname}/example/* ${id} && cd ${id} && glu`
+  );
+  return;
+}
 
 // ----------------------------------
 // Template clientside reload script
@@ -130,7 +126,7 @@ const isRouteRequest = uri =>
 // ----------------------------------
 
 http
-  .createServer((request, res) => {
+  .createServer((req, res) => {
     // Open the event stream for live reload
     res.writeHead(200, {
       Connection: 'keep-alive',
@@ -153,7 +149,7 @@ http
 // Start command running server
 // ----------------------------------
 
-new WebSocket.Server({ port: subPort }).on('connection', socket => {
+new ws.Server({ port: subPort }).on('connection', socket => {
   socket.on('message', body => {
     const [cmd, ...args] = body.split(' ');
     const proc = require('child_process').spawn(cmd, args);
@@ -201,16 +197,6 @@ console.log(` ♻️  Reloading the browser when files under ./${root} change`);
 // Open the page in the default browser
 // ----------------------------------
 
-// const page = `http://localhost:${port}`;
-// const open =
-//   process.platform == "darwin"
-//     ? "open"
-//     : process.platform == "win32"
-//     ? "start"
-//     : "xdg-open";
-
-// browser !== "no" && require("child_process").exec(open + " " + page);
-
-require('child_process').exec(
+cproc.exec(
   `/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --app='http://localhost:${port}'`
 );

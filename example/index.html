@@ -11,8 +11,7 @@
 
       glu('node -v')(setNode('nodev'));
       glu('pwd')(setNode('cwd'));
-
-      glu('node examples/subscriptions/node.js')((data, off) => {
+      glu('node node.js')((data, off) => {
         setNode('count')(data);
         parseInt(data) === 10 && off();
       }).then(() => setNode('done')('DONE'));
