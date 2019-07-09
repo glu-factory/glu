@@ -9,12 +9,12 @@
       const setNode = id => content =>
         (document.getElementById(id).innerHTML = content);
 
-      glu("node -v")(setNode("nodev"));
-      glu("pwd")(setNode("cwd"));
-      glu("node node.js")((data, off) => {
-        setNode("count")(data);
+      glu('node -v')(setNode('nodev'));
+      glu('pwd')(setNode('cwd'));
+      glu('node node.js')((data, off) => {
+        setNode('count')(data);
         parseInt(data) === 10 && off();
-      }).then(() => setNode("done")("DONE"));
+      }).then(() => setNode('done')('DONE'));
     </script>
   </body>
 </html>
