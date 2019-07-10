@@ -2,7 +2,7 @@
 
 > binding web with native
 
-Providing a generalised means of developing distributable, super lightweight hybrid apps; glu makes it possible to execute system level functions calls from browser based user interfaces.
+Providing a generalised means of developing distributable, super lightweight hybrid apps; glu makes it possible to execute system level functions from browser based user interfaces.
 
 ![glu](https://user-images.githubusercontent.com/1457604/60849581-56f42600-a1e3-11e9-8e27-32a3e2bd45cc.png)
 
