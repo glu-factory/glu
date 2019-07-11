@@ -4,10 +4,21 @@
   const url = require('url');
   const path = require('path');
   const http = require('http');
+  const net = require('net');
   const cproc = require('child_process');
 
   const ws = require('ws');
-  const getPort = require('get-port');
+
+  const getPort = () =>
+    new Promise((res, rej) => {
+      const server = net.createServer();
+      server.unref();
+      server.on('error', rej);
+      server.listen({ port: 0 }, () => {
+        const { port } = server.address();
+        server.close(() => res(port));
+      });
+    });
 
   // ----------------------------------
   // Generate map of all known mimetypes

@@ -12,7 +12,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "get-port": "5.0.0",
     "ws": "7.0.1"
   }
 }

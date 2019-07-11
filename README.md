@@ -16,7 +16,7 @@ The difference between this implementation compared to more typical approach (su
 - No boilerplate or setup required
 - No wrappers around node modules
 
-We have avidly tried to keep dependencies of this project to a minimum (relying on only `ws` and `get-port`). To develop and consume glu apps however you will need to have installed a recent version of Nodejs and Google Chrome. Currently glu is only tested on and likely to work on macOS.
+We have avidly tried to keep dependencies of this project to a minimum (relying on only `ws`). To develop and consume glu apps however you will need to have installed a recent version of Nodejs and Google Chrome. Currently glu is only tested on and likely to work on macOS.
 
 ## Quickstart
 
