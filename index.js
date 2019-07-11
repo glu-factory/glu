@@ -11,13 +11,13 @@
 
   const getPort = () =>
     new Promise((res, rej) => {
-      const server = net.createServer();
-      server.unref();
-      server.on('error', rej);
-      server.listen({ port: 0 }, () => {
-        const { port } = server.address();
-        server.close(() => res(port));
-      });
+      const server = net
+        .createServer()
+        .on('error', rej)
+        .listen(0, () => {
+          const { port } = server.address();
+          server.close(() => res(port));
+        });
     });
 
   // ----------------------------------
