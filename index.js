@@ -81,7 +81,10 @@ const reloadScript = `
   <script>
     (() => {
       const source = new EventSource('http://localhost:${reloadPort}');
-      source.onmessage = e => location.reload(true);
+      source.onmessage = e => {
+        e.data === 'reload' && location.reload(true);
+        e.data === 'close' && window.close();
+      }
       const __SUB_PORT__ = ${subPort};
       window.glu = ${glu.toString()}
     })();
@@ -135,13 +138,18 @@ http
       'Access-Control-Allow-Origin': '*'
     });
     // Send an initial ack event to stop request pending
-    sendMessage(res, 'connected', 'awaiting change');
+    sendMessage(res, 'connected', 'listening');
     // Send a ping event every minute to prevent console errors
-    setInterval(sendMessage, 60000, res, 'ping', 'still waiting');
+    setInterval(sendMessage, 60000, res, 'ping', 'waiting');
     // Watch the target directory for changes and trigger reload
     fs.watch(path.join(cwd, root), { recursive: true }, () =>
-      sendMessage(res, 'message', 'reloading page')
+      sendMessage(res, 'message', 'reload')
     );
+    // Close the browser upon ctrl+c in terminal
+    process.on('SIGINT', () => {
+      sendMessage(res, 'message', 'close');
+      setTimeout(process.exit, 0);
+    });
   })
   .listen(parseInt(reloadPort, 10));
 
