@@ -96,6 +96,11 @@
       }
       const __SUB_PORT__ = ${subPort};
       window.glu = ${glu.toString()}
+      window.onunload = e => {
+        glu('SIGINT')();
+        let start = Date.now(), now = start;
+        while (now - start < 10) { now = Date.now() }
+      }
     })();
   </script>
 `;
@@ -168,6 +173,7 @@
 
   new ws.Server({ port: subPort }).on('connection', socket => {
     socket.on('message', body => {
+      if (body === 'SIGINT') process.exit();
       const [cmd, ...args] = body.split(' ');
       const proc = require('child_process').spawn(cmd, args);
       proc.stdout.on('data', stdout => socket.send(stdout.toString()));
