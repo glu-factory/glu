@@ -6,18 +6,14 @@
   const http = require('http');
   const net = require('net');
   const cproc = require('child_process');
-
   const ws = require('ws');
 
   const getPort = () =>
     new Promise((res, rej) => {
-      const server = net
-        .createServer()
-        .on('error', rej)
-        .listen(0, () => {
-          const { port } = server.address();
-          server.close(() => res(port));
-        });
+      const s = net.createServer().listen(0, () => {
+        const { port } = s.address();
+        s.close(() => res(port));
+      });
     });
 
   // ----------------------------------
