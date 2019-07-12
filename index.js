@@ -177,14 +177,17 @@
     socket.on('message', body => {
       if (body === 'SIGINT') process.exit();
       const [cmd, ...args] = body.split(' ');
-      const proc = require('child_process').spawn(cmd, args);
+      let proc = cproc.spawn(cmd, args);
       ['stdout', 'stderr'].map(channel =>
         proc[channel].on('data', out => socket.send(out.toString()))
       );
 
-      proc.on('close', (code, signal) =>
-        socket.close(code === 1 ? 1011 : 1000, `${signal}`)
-      );
+      socket.on('close', () => !!proc && proc.kill('SIGINT'));
+
+      proc.on('close', (code, signal) => {
+        proc = null;
+        socket.close(code > 0 ? 1011 : 1000, `${signal}`);
+      });
     });
   });
 
