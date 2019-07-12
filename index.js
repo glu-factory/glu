@@ -66,9 +66,8 @@
     const once = () =>
       new Promise(resolve => {
         let handler = ({ data }) => {
-          console.log(data);
-          resolve(data);
           socket.removeEventListener('message', handler);
+          resolve(data);
         };
         socket.addEventListener('message', handler);
       });
