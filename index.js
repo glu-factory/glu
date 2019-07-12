@@ -182,11 +182,8 @@
         proc[channel].on('data', out => socket.send(out.toString()))
       );
 
-      proc.on(
-        'close',
-        (code, signal) =>
-          console.log(code, signal) ||
-          socket.close(code === 1 ? 1011 : 1000, `${signal}`)
+      proc.on('close', (code, signal) =>
+        socket.close(code === 1 ? 1011 : 1000, `${signal}`)
       );
     });
   });
