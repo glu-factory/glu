@@ -77,8 +77,10 @@
     }
 
     return cb => {
-      return new Promise(resolve => {
-        socket.addEventListener('close', resolve);
+      return new Promise((res, rej) => {
+        socket.addEventListener('close', e =>
+          e.code === 1011 ? rej(e) : res(e)
+        );
         (async () => {
           for await (const response of getResponse()) cb(response, off);
         })();
@@ -176,9 +178,16 @@
       if (body === 'SIGINT') process.exit();
       const [cmd, ...args] = body.split(' ');
       const proc = require('child_process').spawn(cmd, args);
-      proc.stdout.on('data', stdout => socket.send(stdout.toString()));
-      proc.on('error', e => socket.send(e.toString()));
-      proc.on('exit', e => socket.close(e.code));
+      ['stdout', 'stderr'].map(channel =>
+        proc[channel].on('data', out => socket.send(out.toString()))
+      );
+
+      proc.on(
+        'close',
+        (code, signal) =>
+          console.log(code, signal) ||
+          socket.close(code === 1 ? 1011 : 1000, `${signal}`)
+      );
     });
   });
 
