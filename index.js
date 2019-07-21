@@ -36,23 +36,15 @@
   const filePort = await port();
   const subPort = await port();
   const reloadPort = await port();
-  const init = !!~process.argv.indexOf('--init');
-  const cwd = process.cwd();
 
-  // ----------------------------------
-  // Create an example app if --init
-  // ----------------------------------
+  const launch = !!~process.argv.indexOf('--launch');
+  const cwd = launch ? __dirname + '/launcher' : process.cwd();
 
-  if (init) {
-    const id = `glu-${Math.random()
-      .toString(16)
-      .replace('0.', '')
-      .slice(5)}`;
-    cproc.execSync(
-      `mkdir ${id} && cp ${__dirname}/example/* ${id} && cd ${id} && glu`
-    );
-    return;
-  }
+  // const id = `glu-${Math.random()
+  //   .toString(16)
+  //   .replace('0.', '')
+  //   .slice(5)}`;
+  // `mkdir ${id} && cp ${__dirname}/example/* ${id} && cd ${id} && glu`
 
   // ----------------------------------
   // Template clientside reload script
@@ -105,6 +97,7 @@
       const __SUB_PORT__ = ${subPort};
       window.glu = ${glu.toString()}
       window.onbeforeunload = e => { !reloading && source.send('SIGINT') }
+      window.__dirname = '${__dirname}';
     })();
   </script>
 `;
@@ -142,7 +135,7 @@
   // ----------------------------------
 
   let fileWatcher;
-  let sigIntHandler;
+  let sigIntHandler = () => process.exit();
 
   new ws.Server({ port: reloadPort }).on('connection', socket => {
     // Close the browser upon ctrl+c in terminal
@@ -169,7 +162,9 @@
   new ws.Server({ port: subPort }).on('connection', socket => {
     socket.on('message', body => {
       const [cmd, ...args] = body.split(' ');
-      let proc = cproc.spawn(cmd, args);
+      let proc = cproc.spawn(cmd, args, {
+        cwd: path.join(process.cwd(), root)
+      });
 
       ['stdout', 'stderr'].map(channel =>
         proc[channel].on('data', out => socket.send(out.toString()))
@@ -214,10 +209,10 @@
   // ----------------------------------
 
   console.log(
-    `\n 🗂  Serving files from ./${root} on http://localhost:${filePort}`
+    `\n 🗂  Serving files from ${root} on http://localhost:${filePort}`
   );
   console.log(` 🖥  Using ${fallback} as the fallback for route requests`);
-  console.log(` ♻️  Reloading the browser when files under ./${root} change`);
+  console.log(` ♻️  Reloading the browser when files under ${root} change`);
 
   // ----------------------------------
   // Open the page in the default browser
