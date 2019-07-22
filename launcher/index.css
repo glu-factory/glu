@@ -24,6 +24,10 @@ body {
   color: rgba(255, 255, 255, 0.62);
 }
 
+main:not(:empty) + header {
+  display: none;
+}
+
 header {
   flex: 1 1 100%;
   margin: auto;
