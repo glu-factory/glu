@@ -27,15 +27,3 @@ body {
 main {
   flex: 1 1 100%;
 }
-
-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(0, 0, 0, 0.062);
-  color: rgba(0, 0, 0, 0.5);
-  padding: 0.62rem;
-  font-family: monospace;
-  font-weight: bold;
-  font-size: 1.2rem;
-}

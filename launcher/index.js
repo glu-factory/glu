@@ -5,9 +5,13 @@ const html = htm.bind(React.createElement);
 
 const style = {
   nav: css`
+    position: sticky;
+    top: 0;
     display: flex;
     padding: 3vmin;
-    background: rgba(0, 0, 0, 0.1);
+    background: #333;
+    box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.1);
+    z-index: 1;
 
     > * + * {
       margin-left: 3vmin;
@@ -24,6 +28,7 @@ const style = {
       border: 0;
       font-size: 3vmin;
       padding: 2vmin;
+      color: #fff;
     }
   `,
   welcome: css`
@@ -150,6 +155,19 @@ const style = {
       color: #fff;
       text-transform: uppercase;
     }
+  `,
+  footer: css`
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #333;
+    color: rgba(0, 0, 0, 0.5);
+    padding: 0.62rem;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 1.2rem;
   `
 };
 
@@ -171,6 +189,7 @@ const App = () => {
   const [cwd, setCwd] = React.useState('');
   const [nodeVersion, setNodeVersion] = React.useState('');
   const [projects, setProjects] = React.useState(null);
+  const [search, setSearch] = React.useState('');
 
   const launch = async template => {
     const id = `glu-${template}-${Math.random()
@@ -221,15 +240,19 @@ const App = () => {
         : html`
             <nav className=${style.nav}>
               <img src="./logo.png" alt="glu" />
-              <input type="search" placeholder="Search for projects" />
+              <input
+                onInput=${e => setSearch(e.target.value)}
+                type="search"
+                placeholder="Search for projects"
+              />
             </nav>
             <main className=${style.projects}>
               <ul>
-                ${projects.map(Project)}
+                ${projects.filter(x => x.match(search)).map(Project)}
               </ul>
             </main>
           `}
-      <footer>
+      <footer className=${style.footer}>
         <span>${cwd}</span>
         <span>${nodeVersion}</span>
       </footer>
