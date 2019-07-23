@@ -38,7 +38,11 @@
   const reloadPort = await port();
 
   const launch = !!~process.argv.indexOf('--launch');
-  const cwd = launch ? __dirname + '/launcher' : process.cwd();
+  const cwd = launch
+    ? __dirname + '/launcher'
+    : root.startsWith('/')
+    ? root
+    : path.join(process.cwd(), root);
 
   // const id = `glu-${Math.random()
   //   .toString(16)
@@ -146,7 +150,7 @@
     };
     // Watch the target directory for changes and trigger reload
     fileWatcher && fileWatcher.close();
-    fileWatcher = fs.watch(path.join(cwd, root), { recursive: true }, () =>
+    fileWatcher = fs.watch(cwd, { recursive: true }, () =>
       socket.send('reload')
     );
     // Listen for window closing
@@ -162,9 +166,7 @@
   new ws.Server({ port: subPort }).on('connection', socket => {
     socket.on('message', body => {
       const [cmd, ...args] = body.split(' ');
-      let proc = cproc.spawn(cmd, args, {
-        cwd: path.join(process.cwd(), root)
-      });
+      let proc = cproc.spawn(cmd, args, { cwd });
 
       ['stdout', 'stderr'].map(channel =>
         proc[channel].on('data', out => socket.send(out.toString()))
@@ -188,7 +190,7 @@
       const isRoute = isRouteRequest(pathname);
       const status = isRoute && pathname !== '/' ? 301 : 200;
       const resource = isRoute ? `/${fallback}` : decodeURI(pathname);
-      const uri = path.join(cwd, root, resource);
+      const uri = path.join(cwd, resource);
       const ext = uri.replace(/^.*[\.\/\\]/, '').toLowerCase();
       isRoute && console.log('\n \x1b[44m', 'RELOADING', '\x1b[0m\n');
       // Check if files exists at the location
