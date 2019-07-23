@@ -166,7 +166,9 @@
   new ws.Server({ port: subPort }).on('connection', socket => {
     socket.on('message', body => {
       const [cmd, ...args] = body.split(' ');
-      let proc = cproc.spawn(cmd, args, { cwd });
+      let proc = cproc.spawn(cmd, args, {
+        cwd: root.startsWith('/') ? root : path.join(process.cwd(), root)
+      });
 
       ['stdout', 'stderr'].map(channel =>
         proc[channel].on('data', out => socket.send(out.toString()))

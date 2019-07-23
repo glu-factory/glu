@@ -59,14 +59,13 @@ const style = {
       font-weight: lighter;
       color: rgba(255, 255, 255, 0.38);
     }
+  `,
+  templates: css`
+    display: flex;
+    align-items: center;
+    list-style: none;
 
-    ul {
-      display: flex;
-      align-items: center;
-      list-style: none;
-    }
-
-    ul > * + * {
+    > * + * {
       margin-left: 3vmin;
     }
 
@@ -113,16 +112,21 @@ const style = {
   `,
   projects: css`
     padding: 2rem;
-    ul > * + * {
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    > * + * {
+      margin-top: 3rem;
     }
   `,
   project: css`
     display: flex;
     align-items: center;
     opacity: 0.62;
+
+    & + & {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
     &:hover {
       opacity: 1;
       cursor: pointer;
@@ -191,73 +195,88 @@ const App = () => {
   const [projects, setProjects] = React.useState(null);
   const [search, setSearch] = React.useState('');
 
+  const listProjects = () =>
+    glu(`ls ${__dirname}/created`)(data =>
+      setProjects(
+        data
+          .trim()
+          .replace(/\->/g, '/')
+          .split('\n') || []
+      )
+    );
+
   const launch = async template => {
     const id = `glu-${template}-${Math.random()
       .toString(16)
       .slice(3, 8)}`;
     await glu(`mkdir ${id}`)(console.log);
     await glu(`cp -r ${__dirname}/templates/${template}/. ${id}/`)(console.log);
+    await glu(
+      `touch ${__dirname}/created/${`${cwd.trim()}/${id}`.replace(/\//g, '->')}`
+    )(console.log);
+    listProjects();
     glu(`glu ${id}`);
   };
 
   React.useEffect(() => {
     glu('pwd')(setCwd);
     glu('node -v')(setNodeVersion);
-    glu(`ls ${__dirname}/created`)(data =>
-      setProjects(
-        data
-          .trim()
-          .replace(/\->/g, '/')
-          .split('\n')
-      )
-    );
+    listProjects();
   }, []);
 
-  return (
-    projects &&
-    html`
-      ${projects.length === 0
-        ? html`
-            <main className=${style.welcome}>
-              <h1>Quickstart Templates</h1>
-              <ul>
-                <button onClick=${() => launch('react')}>
-                  <img src="/icons/react.png" /><span>React</span>
-                </button>
-                <button onClick=${() => launch('vue')}>
-                  <img src="/icons/vue.png" /><span>Vue</span>
-                </button>
-                <button onClick=${() => launch('preact')}>
-                  <img src="/icons/preact.png" /><span>Preact</span>
-                </button>
-              </ul>
-              <p>
-                It looks like you haven't started or opened any glu projects
-                yet, choose a template!
-              </p>
-            </main>
-          `
-        : html`
-            <nav className=${style.nav}>
-              <img src="./logo.png" alt="glu" />
-              <input
-                onInput=${e => setSearch(e.target.value)}
-                type="search"
-                placeholder="Search for projects"
-              />
-            </nav>
-            <main className=${style.projects}>
-              <ul>
-                ${projects.filter(x => x.match(search)).map(Project)}
-              </ul>
-            </main>
-          `}
-      <footer className=${style.footer}>
-        <span>${cwd}</span>
-        <span>${nodeVersion}</span>
-      </footer>
-    `
-  );
+  return html`
+    ${!projects || projects.length === 0
+      ? html`
+          <main className=${style.welcome}>
+            <h1>Quickstart Templates</h1>
+            <ul className=${style.templates}>
+              <button onClick=${() => launch('react')}>
+                <img src="/icons/react.png" /><span>React</span>
+              </button>
+              <button onClick=${() => launch('vue')}>
+                <img src="/icons/vue.png" /><span>Vue</span>
+              </button>
+              <button onClick=${() => launch('preact')}>
+                <img src="/icons/preact.png" /><span>Preact</span>
+              </button>
+            </ul>
+            <p>
+              It looks like you haven't started or opened any glu projects yet,
+              choose a template!
+            </p>
+          </main>
+        `
+      : html`
+          <nav className=${style.nav}>
+            <img src="./logo.png" alt="glu" />
+            <input
+              onInput=${e => setSearch(e.target.value)}
+              type="search"
+              placeholder="Search for projects"
+            />
+          </nav>
+          <main className=${style.projects}>
+            <ul className=${style.templates}>
+              <button onClick=${() => launch('react')}>
+                <img src="/icons/react.png" /><span>React</span>
+              </button>
+              <button onClick=${() => launch('vue')}>
+                <img src="/icons/vue.png" /><span>Vue</span>
+              </button>
+              <button onClick=${() => launch('preact')}>
+                <img src="/icons/preact.png" /><span>Preact</span>
+              </button>
+            </ul>
+            <ul>
+              ${projects.filter(x => x.match(search)).map(Project)}
+            </ul>
+          </main>
+        `}
+    <footer className=${style.footer}>
+      <span>${cwd}</span>
+      <span>${nodeVersion}</span>
+    </footer>
+  `;
 };
 
 ReactDOM.render(
