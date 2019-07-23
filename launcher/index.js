@@ -40,13 +40,13 @@ const App = () => {
     <header>
       <h6>Quickstart Templates</h6>
       <ul>
-        <button onclick=${e => launch('react')}>
+        <button onClick=${e => launch('react')}>
           <img src="/icons/react.png" /><span>React</span>
         </button>
-        <button onclick=${e => launch('vue')}>
+        <button onClick=${e => launch('vue')}>
           <img src="/icons/vue.png" /><span>Vue</span>
         </button>
-        <button onclick=${e => launch('preact')}>
+        <button onClick=${e => launch('preact')}>
           <img src="/icons/preact.png" /><span>Preact</span>
         </button>
       </ul>
