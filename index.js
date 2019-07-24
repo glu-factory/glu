@@ -209,7 +209,7 @@
     .listen(parseInt(filePort, 10));
 
   // ----------------------------------
-  // Add directory to recent glu projects
+  // Update recent glu projects info
   // ----------------------------------
   if (!launch) {
     const dataDir =
@@ -223,7 +223,10 @@
       fs.writeFileSync(dataFile, '{}');
     }
     let projects = JSON.parse(fs.readFileSync(dataFile));
-    projects[cwd] = {};
+    projects[cwd] = {
+      ...projects[cwd],
+      openTime: Date.now()
+    };
     fs.writeFileSync(dataFile, JSON.stringify(projects));
   }
 

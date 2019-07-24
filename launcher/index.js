@@ -242,7 +242,7 @@ const style = {
   `
 };
 
-const Project = removeProject => x =>
+const Project = (removeProject, listProjects) => x =>
   html`
     <li key=${x} className=${style.project}>
       <img
@@ -252,7 +252,7 @@ const Project = removeProject => x =>
         href="#"
         onClick=${e => {
           e.preventDefault();
-          glu(`glu ${x}`)(console.log);
+          glu(`glu ${x}`)(listProjects);
         }}
       >
         <h3>${x.split('/').pop()}</h3>
@@ -358,9 +358,14 @@ const App = () => {
   const [templates, setTemplates] = React.useState([]);
 
   const listProjects = () =>
-    glu(`node ${__dirname}/launcher/getProjects.js`)(data =>
-      setProjects(Object.keys(JSON.parse(data)))
-    );
+    glu(`node ${__dirname}/launcher/getProjects.js`)(data => {
+      const projects = JSON.parse(data);
+      setProjects(
+        Object.keys(projects).sort(
+          (a, b) => projects[b].openTime - projects[a].openTime
+        )
+      );
+    });
 
   const removeProject = async x => {
     await glu(`node ${__dirname}/launcher/removeProject.js ${x}`);
@@ -386,56 +391,63 @@ const App = () => {
     listProjects();
   }, []);
 
-  return html`
-    ${!projects || projects.length === 0
-      ? html`
-          <main className=${style.welcome}>
-            <h1>Quickstart Templates</h1>
-            <ul className=${style.templates}>
-              ${templates.map(Template(launch))}
-            </ul>
-            <p>
-              It looks like you haven't started or opened any glu projects yet,
-              choose a template!
-            </p>
-          </main>
-        `
-      : html`
-          <nav className=${style.nav}>
-            <img src="./logo.png" alt="glu" />
-            <input
-              onInput=${e => setSearch(e.target.value)}
-              type="search"
-              placeholder="Search for projects.."
-            />
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path
-                d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
-              />
-              <path d="M0 0h24v24H0z" fill="none" />
-            </svg>
-          </nav>
-          <main className=${style.projects}>
-            <div>
-              <h5>Quickstart Templates</h5>
-              <ul className=${style.templates}>
-                ${templates.map(Template(launch))}
-              </ul>
-            </div>
-            <div>
-              <h5>Recent Projects</h5>
-              <ul>
-                ${projects
-                  .filter(x => x.match(search))
-                  .map(Project(removeProject))}
-              </ul>
-            </div>
-          </main>
-        `}
+  const Footer = html`
     <footer className=${style.footer}>
       <span>${cwd}</span>
       <span>${nodeVersion}</span>
     </footer>
+  `;
+
+  return html`
+    ${projects
+      ? projects.length === 0
+        ? html`
+            <main className=${style.welcome}>
+              <h1>Quickstart Templates</h1>
+              <ul className=${style.templates}>
+                ${templates.map(Template(launch))}
+              </ul>
+              <p>
+                It looks like you haven't started or opened any glu projects
+                yet, choose a template!
+              </p>
+            </main>
+            ${Footer}
+          `
+        : html`
+            <nav className=${style.nav}>
+              <img src="./logo.png" alt="glu" />
+              <input
+                onInput=${e => setSearch(e.target.value)}
+                type="search"
+                placeholder="Search for projects.."
+              />
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                  d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                />
+                <path d="M0 0h24v24H0z" fill="none" />
+              </svg>
+            </nav>
+            <main className=${style.projects}>
+              <div>
+                <h5>Quickstart Templates</h5>
+                <ul className=${style.templates}>
+                  ${templates.map(Template(launch))}
+                </ul>
+              </div>
+              <div>
+                <h5>Recent Projects</h5>
+                <ul>
+                  ${projects
+                    .filter(x => x.match(search))
+                    .map(Project(removeProject, listProjects))}
+                </ul>
+              </div>
+            </main>
+            ${Footer}
+          `
+      : null}
   `;
 };
 
