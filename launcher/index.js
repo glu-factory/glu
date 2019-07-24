@@ -363,8 +363,7 @@ const App = () => {
     );
 
   const removeProject = async x => {
-    await glu(`rm -rf ${x}`)(console.log);
-    await glu(`rm ${__dirname}/created/${x.replace(/\//g, '->')}`)(console.log);
+    await glu(`node ${__dirname}/launcher/removeProject.js ${x}`);
     listProjects();
   };
 
@@ -388,7 +387,6 @@ const App = () => {
     listProjects();
   }, []);
 
-  console.log(projects);
   return html`
     ${!projects || projects.length === 0
       ? html`
