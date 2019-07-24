@@ -9,13 +9,13 @@ const style = {
     top: 0;
     display: flex;
     align-items: center;
-    padding-left: 1rem;
+    padding-left: 1.38rem;
     background: #333;
     box-shadow: 0 0 1rem 0 rgba(0, 0, 0, 0.1);
     z-index: 1;
 
     > * + * {
-      margin-left: 1rem;
+      margin-left: 1.38rem;
     }
 
     > img[src='./logo.png'] {
@@ -27,18 +27,18 @@ const style = {
       flex: 1 1 100%;
       background: rgba(0, 0, 0, 0.1);
       border: 0;
-      font-size: 1.5rem;
+      font-size: 1.38rem;
       padding: 1.62rem;
       color: #fff;
       outline: none;
     }
     svg {
       position: absolute;
-      right: 1.62rem;
+      right: 1.38rem;
       top: 50%;
       transform: translateY(-50%);
-      width: 2rem;
-      height: 2rem;
+      width: 2.2rem;
+      height: 2.2rem;
       fill: rgba(255, 255, 255, 0.38);
     }
   `,
@@ -85,19 +85,16 @@ const style = {
       flex-direction: column;
       align-items: center;
       position: relative;
-      background: transparent;
       border: 0;
       background: rgba(0, 0, 0, 0.1);
       color: #fff;
-      font-weight: bold;
-      padding: 1.38rem;
+      padding: 1rem 1.38rem;
       font-size: 1rem;
       box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.2);
       transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      outline: none;
       cursor: pointer;
       border-radius: 0.5rem;
-      opacity: 0.8;
+      opacity: 0.62;
       transition: transform 0.3s, opacity 0.2s;
     }
 
@@ -119,7 +116,7 @@ const style = {
     button span {
       width: 100%;
       text-align: center;
-      margin-top: 1rem;
+      margin-top: 0.62rem;
     }
   `,
   projects: css`
@@ -155,21 +152,21 @@ const style = {
       margin-left: 1rem;
     }
 
-    > div {
+    > a {
       flex: 1 1 100%;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       transition: transform 0.5s;
+      color: inherit;
+      text-decoration: none;
+      padding: 0.38rem;
       > * + * {
         margin-top: 0.38rem;
       }
-      &:hover {
-        cursor: pointer;
-      }
     }
 
-    &:hover > div {
+    &:hover > a {
       transform: translateX(1%);
     }
 
@@ -178,12 +175,12 @@ const style = {
       height: 4rem;
       border-radius: 1rem;
       flex: none;
-      transition: transform 0.3s;
+      opacity: 0.8;
+      transition: opacity 0.3s;
     }
 
     &:hover img {
-      transform: scale(1.1);
-      border-radius: 0.62rem;
+      opacity: 1;
     }
 
     h3 {
@@ -210,15 +207,14 @@ const style = {
       flex: none;
       padding: 0.62rem;
       border: 0;
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(0, 0, 0, 0.3);
       color: #fff;
       text-transform: uppercase;
       font-size: 0.5rem;
-      opacity: 0.5;
+      opacity: 0.38;
 
       &:hover {
-        opacity: 1;
-        cursor: pointer;
+        opacity: 0.9;
       }
 
       > * + * {
@@ -252,10 +248,16 @@ const Project = removeProject => x =>
       <img
         src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
       />
-      <div onClick=${() => glu(`glu ${x}`)(console.log)}>
+      <a
+        href="#"
+        onClick=${e => {
+          e.preventDefault();
+          glu(`glu ${x}`)(console.log);
+        }}
+      >
         <h3>${x.split('/').pop()}</h3>
         <small>${x}</small>
-      </div>
+      </a>
       <aside>
         <button onClick=${() => glu(`open ${x}`)(console.log)}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -331,10 +333,10 @@ const Project = removeProject => x =>
         </button>
         <button onClick=${() => removeProject(x)}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path fill="none" d="M0 0h24v24H0V0z" />
             <path
-              d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"
+              d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM6.24 5h11.52l.81.97H5.44l.8-.97zM5 19V8h14v11H5zm8.45-9h-2.9v3H8l4 4 4-4h-2.55z"
             />
-            <path d="M0 0h24v24H0z" fill="none" />
           </svg>
           <span>Archive</span>
         </button>
