@@ -358,7 +358,7 @@ const App = () => {
   const [templates, setTemplates] = React.useState([]);
 
   const listProjects = () =>
-    glu(`node ${__dirname}/launcher/getProjects.js`)(data => {
+    glu(`node ${__dirname}/launcher/functions/getProjects.js`)(data => {
       const projects = JSON.parse(data);
       setProjects(
         Object.keys(projects).sort(
@@ -368,7 +368,7 @@ const App = () => {
     });
 
   const removeProject = async x => {
-    await glu(`node ${__dirname}/launcher/removeProject.js ${x}`);
+    await glu(`node ${__dirname}/launcher/functions/removeProject.js ${x}`);
     listProjects();
   };
 
