@@ -199,13 +199,36 @@ const style = {
       overflow: hidden;
     }
 
+    aside {
+      display: flex;
+    }
+
     button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       flex: none;
-      padding: 0.38rem 0.62rem;
+      padding: 0.62rem;
       border: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.2);
       color: #fff;
       text-transform: uppercase;
+      font-size: 0.5rem;
+      opacity: 0.5;
+
+      &:hover {
+        opacity: 1;
+        cursor: pointer;
+      }
+
+      > * + * {
+        margin-top: 0.38rem;
+      }
+
+      svg {
+        width: 1.38rem;
+        fill: #fff;
+      }
     }
   `,
   footer: css`
@@ -223,7 +246,7 @@ const style = {
   `
 };
 
-const Project = x =>
+const Project = removeProject => x =>
   html`
     <li key=${x} className=${style.project}>
       <img
@@ -234,27 +257,119 @@ const Project = x =>
         <small>${x}</small>
       </div>
       <aside>
-        <button onClick=${() => glu(`open ${x}`)(console.log)}>Open</button>
-        <button onClick=${() => glu(`code ${x}`)(console.log)}>Edit</button>
+        <button onClick=${() => glu(`open ${x}`)(console.log)}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path
+              d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h4v-2H5V8h14v10h-4v2h4c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm-7 6l-4 4h3v6h2v-6h3l-4-4z"
+            />
+          </svg>
+          <span>Browse</span>
+        </button>
+        <button onClick=${() => glu(`code ${x}`)(console.log)}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <g>
+              <g>
+                <path
+                  d="M296,232c-5.52,0-10,4.48-10,10s4.48,10,10,10c5.52,0,10-4.48,10-10S301.52,232,296,232z"
+                />
+              </g>
+            </g>
+            <g>
+              <g>
+                <path
+                  d="M256,172c-5.52,0-10,4.48-10,10s4.48,10,10,10c5.52,0,10-4.48,10-10S261.52,172,256,172z"
+                />
+              </g>
+            </g>
+            <g>
+              <g>
+                <path
+                  d="M136,432c-5.52,0-10,4.48-10,10c0,5.52,4.48,10,10,10s10-4.48,10-10C146,436.48,141.52,432,136,432z"
+                />
+              </g>
+            </g>
+            <g>
+              <g>
+                <path
+                  stroke="white"
+                  stroke-width="12px"
+                  d="M454.416,407.678L326,179.381V58.286c11.641-4.127,20-15.248,20-28.286c0-16.542-13.458-30-30-30H196
+                        c-16.542,0-30,13.458-30,30c0,13.038,8.359,24.159,20,28.286v121.095L57.584,407.678c-12.328,21.916-12.109,47.959,0.584,69.663
+                        C70.86,499.043,93.448,512,118.59,512h274.82c25.142,0,47.729-12.957,60.422-34.659
+                        C466.525,455.637,466.744,429.594,454.416,407.678z
+                        M204.716,186.902c0.842-1.496,1.284-3.185,1.284-4.902V60h10
+                        c5.522,0,10-4.478,10-10s-4.478-10-10-10h-20c-5.514,0-10-4.486-10-10s4.486-10,10-10h120c5.514,0,10,4.486,10,10s-4.486,10-10,10
+                        h-20c-5.522,0-10,4.478-10,10s4.478,10,10,10h10v122c0,1.718,0.442,3.405,1.284,4.902l58.941,104.787
+                        c-35.995-2.915-71.865,4.365-104.821,21.43c-42.366,21.924-89.529,25.784-134,11.227L204.716,186.902z
+                        M436.567,467.244
+                        C427.502,482.745,411.368,492,393.41,492H118.59c-17.958,0-34.092-9.255-43.157-24.756c-9.067-15.503-9.224-34.106-0.417-49.762
+                        l42.408-75.392c20.576,7.185,41.84,10.812,63.437,10.812c3.197,0,6.402-0.079,9.613-0.238
+                        c27.905-1.382,54.862-8.711,80.124-21.784c33.792-17.496,70.959-23.536,107.783-17.581l58.604,104.183
+                        C445.791,433.138,445.635,451.741,436.567,467.244z"
+                />
+              </g>
+            </g>
+            <g>
+              <g>
+                <path
+                  d="M216,232c-16.542,0-30,13.458-30,30s13.458,30,30,30s30-13.458,30-30S232.542,232,216,232z M216,272
+                  			c-5.514,0-10-4.486-10-10c0-5.514,4.486-10,10-10c5.514,0,10,4.486,10,10C226,267.514,221.514,272,216,272z"
+                />
+              </g>
+            </g>
+            <g>
+              <g>
+                <path
+                  d="M376,432H176c-5.522,0-10,4.478-10,10c0,5.522,4.478,10,10,10h200c5.522,0,10-4.478,10-10
+                  			C386,436.478,381.522,432,376,432z"
+                />
+              </g>
+            </g>
+          </svg>
+          <span>Develop</span>
+        </button>
+        <button onClick=${() => removeProject(x)}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z"
+            />
+            <path d="M0 0h24v24H0z" fill="none" />
+          </svg>
+          <span>Archive</span>
+        </button>
       </aside>
     </li>
   `;
+
+const Template = launch => x => html`
+  <button onClick=${() => launch(x)}>
+    <img src=${`/icons/${x}.png`} /><span>${x}</span>
+  </button>
+`;
 
 const App = () => {
   const [cwd, setCwd] = React.useState('');
   const [nodeVersion, setNodeVersion] = React.useState('');
   const [projects, setProjects] = React.useState(null);
   const [search, setSearch] = React.useState('');
+  const [templates, setTemplates] = React.useState([]);
 
-  const listProjects = () =>
-    glu(`ls ${__dirname}/created`)(data =>
-      setProjects(
-        data
-          .trim()
-          .replace(/\->/g, '/')
-          .split('\n') || []
-      )
-    );
+  const listProjects = () => {
+    let _projects;
+    glu(`ls ${__dirname}/created`)(data => {
+      _projects = data
+        .trim()
+        .replace(/\->/g, '/')
+        .split('\n');
+    }).then(() => setProjects(_projects || []));
+  };
+
+  const removeProject = async x => {
+    await glu(`rm -rf ${x}`)(console.log);
+    await glu(`rm ${__dirname}/created/${x.replace(/\//g, '->')}`)(console.log);
+    listProjects();
+  };
 
   const launch = async template => {
     const id = `glu-${template}-${Math.random()
@@ -272,24 +387,20 @@ const App = () => {
   React.useEffect(() => {
     glu('pwd')(setCwd);
     glu('node -v')(setNodeVersion);
+    glu(`ls ${__dirname}/templates`)(data =>
+      setTemplates(data.trim().split('\n'))
+    );
     listProjects();
   }, []);
 
+  console.log(projects);
   return html`
     ${!projects || projects.length === 0
       ? html`
           <main className=${style.welcome}>
             <h1>Quickstart Templates</h1>
             <ul className=${style.templates}>
-              <button onClick=${() => launch('react')}>
-                <img src="/icons/react.png" /><span>React</span>
-              </button>
-              <button onClick=${() => launch('vue')}>
-                <img src="/icons/vue.png" /><span>Vue</span>
-              </button>
-              <button onClick=${() => launch('preact')}>
-                <img src="/icons/preact.png" /><span>Preact</span>
-              </button>
+              ${templates.map(Template(launch))}
             </ul>
             <p>
               It looks like you haven't started or opened any glu projects yet,
@@ -316,21 +427,15 @@ const App = () => {
             <div>
               <h5>Quickstart Templates</h5>
               <ul className=${style.templates}>
-                <button onClick=${() => launch('react')}>
-                  <img src="/icons/react.png" /><span>React</span>
-                </button>
-                <button onClick=${() => launch('vue')}>
-                  <img src="/icons/vue.png" /><span>Vue</span>
-                </button>
-                <button onClick=${() => launch('preact')}>
-                  <img src="/icons/preact.png" /><span>Preact</span>
-                </button>
+                ${templates.map(Template(launch))}
               </ul>
             </div>
             <div>
               <h5>Recent Projects</h5>
               <ul>
-                ${projects.filter(x => x.match(search)).map(Project)}
+                ${projects
+                  .filter(x => x.match(search))
+                  .map(Project(removeProject))}
               </ul>
             </div>
           </main>
