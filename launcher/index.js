@@ -374,8 +374,7 @@ const App = () => {
     await glu(`mkdir ${id}`)(console.log);
     await glu(`cp -r ${__dirname}/templates/${template}/. ${id}/`)(console.log);
 
-    listProjects();
-    glu(`glu ${id}`);
+    glu(`glu ${id}`)(listProjects);
   };
 
   React.useEffect(() => {
