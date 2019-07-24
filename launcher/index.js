@@ -357,15 +357,10 @@ const App = () => {
   const [search, setSearch] = React.useState('');
   const [templates, setTemplates] = React.useState([]);
 
-  const listProjects = () => {
-    let _projects;
-    glu(`ls ${__dirname}/created`)(data => {
-      _projects = data
-        .trim()
-        .replace(/\->/g, '/')
-        .split('\n');
-    }).then(() => setProjects(_projects || []));
-  };
+  const listProjects = () =>
+    glu(`node ${__dirname}/launcher/getProjects.js`)(data =>
+      setProjects(Object.keys(JSON.parse(data)))
+    );
 
   const removeProject = async x => {
     await glu(`rm -rf ${x}`)(console.log);
@@ -379,9 +374,7 @@ const App = () => {
       .slice(3, 8)}`;
     await glu(`mkdir ${id}`)(console.log);
     await glu(`cp -r ${__dirname}/templates/${template}/. ${id}/`)(console.log);
-    await glu(
-      `touch ${__dirname}/created/${`${cwd.trim()}/${id}`.replace(/\//g, '->')}`
-    )(console.log);
+
     listProjects();
     glu(`glu ${id}`);
   };

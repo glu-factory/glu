@@ -209,6 +209,25 @@
     .listen(parseInt(filePort, 10));
 
   // ----------------------------------
+  // Add directory to recent glu projects
+  // ----------------------------------
+  if (!launch) {
+    const dataDir =
+      process.env.APPDATA ||
+      (process.platform == 'darwin'
+        ? process.env.HOME + '/Library/Preferences'
+        : process.env.HOME + '/.local/share') + '/glu';
+    const dataFile = dataDir + '/projects.json';
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir);
+      fs.writeFileSync(dataFile, '{}');
+    }
+    let projects = JSON.parse(fs.readFileSync(dataFile));
+    projects[cwd] = {};
+    fs.writeFileSync(dataFile, JSON.stringify(projects));
+  }
+
+  // ----------------------------------
   // Log startup details to terminal
   // ----------------------------------
 
