@@ -1,15 +1,14 @@
 const fs = require('fs');
+const { APP_DATA } = require('./utils.js');
 
 const args = process.argv.slice(2).filter(x => !~x.indexOf('--'));
-const projectPath = args[0];
+const path = args[0];
 
-const dataFile =
-  process.env.APPDATA ||
-  (process.platform == 'darwin'
-    ? process.env.HOME + '/Library/Preferences'
-    : process.env.HOME + '/.local/share') + '/glu/projects.json';
-if (fs.existsSync(dataFile)) {
-  const projects = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-  delete projects[projectPath];
-  fs.writeFileSync(dataFile, JSON.stringify(projects));
-}
+// Fetch all the known projects
+const file = APP_DATA + '/projects.json';
+const projects = fs.existsSync(file)
+  ? JSON.parse(fs.readFileSync(file, 'utf8'))
+  : {};
+
+delete projects[path];
+fs.writeFileSync(file, JSON.stringify(projects));

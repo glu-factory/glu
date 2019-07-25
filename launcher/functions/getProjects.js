@@ -1,14 +1,15 @@
 const fs = require('fs');
+const { APP_DATA } = require('./utils.js');
 
-const dataDir =
-  process.env.APPDATA ||
-  (process.platform == 'darwin'
-    ? process.env.HOME + '/Library/Preferences'
-    : process.env.HOME + '/.local/share') + '/glu';
-const dataFile = dataDir + '/projects.json';
-if (!fs.existsSync(dataFile)) return console.log('{}');
-const projects = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-// remove projects that have been manually deleted
+// Fetch all the known projects
+const file = APP_DATA + '/projects.json';
+const projects = fs.existsSync(file)
+  ? JSON.parse(fs.readFileSync(file, 'utf8'))
+  : {};
+
+// Filter out projects that don't exist
 Object.keys(projects).map(key => !fs.existsSync(key) && delete projects[key]);
-fs.writeFileSync(dataFile, JSON.stringify(projects));
+fs.writeFileSync(file, JSON.stringify(projects));
+
+// Return list of existing projects
 console.log(JSON.stringify(projects));
