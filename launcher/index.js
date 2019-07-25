@@ -167,7 +167,7 @@ const style = {
     }
 
     &:hover > a {
-      transform: translateX(1%);
+      transform: translateX(-1%);
     }
 
     img {
