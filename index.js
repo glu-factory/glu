@@ -44,12 +44,6 @@
     ? root
     : path.join(process.cwd(), root);
 
-  // const id = `glu-${Math.random()
-  //   .toString(16)
-  //   .replace('0.', '')
-  //   .slice(5)}`;
-  // `mkdir ${id} && cp ${__dirname}/example/* ${id} && cd ${id} && glu`
-
   // ----------------------------------
   // Template clientside reload script
   // ----------------------------------

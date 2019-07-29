@@ -10,5 +10,6 @@ const projects = fs.existsSync(file)
   ? JSON.parse(fs.readFileSync(file, 'utf8'))
   : {};
 
+// Remove the project at path and write to file
 delete projects[path];
 fs.writeFileSync(file, JSON.stringify(projects));

@@ -23,8 +23,13 @@ const style = {
       opacity: 0.2;
     }
 
-    > input {
+    form {
+      position: relative;
       flex: 1 1 100%;
+    }
+
+    input {
+      width: 100%;
       background: rgba(0, 0, 0, 0.1);
       border: 0;
       font-size: 1.38rem;
@@ -75,6 +80,9 @@ const style = {
     display: flex;
     align-items: center;
     list-style: none;
+    overflow-x: auto;
+    padding-bottom: 1.62rem;
+    margin-bottom: -1rem;
 
     > * + * {
       margin-left: 1rem;
@@ -82,13 +90,12 @@ const style = {
 
     button {
       display: flex;
-      flex-direction: column;
       align-items: center;
       position: relative;
       border: 0;
       background: rgba(0, 0, 0, 0.1);
       color: #fff;
-      padding: 1rem 1.38rem;
+      padding: 1rem;
       font-size: 1rem;
       box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.2);
       transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -96,27 +103,32 @@ const style = {
       border-radius: 0.5rem;
       opacity: 0.62;
       transition: transform 0.3s, opacity 0.2s;
-    }
 
-    button:hover {
-      box-shadow: 0 6px 0 0 rgba(0, 0, 0, 0.18);
-      transform: translate(0, -3px);
-      opacity: 1;
-    }
-
-    button:active {
-      box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.2);
-      transform: translate(0, 0);
-    }
-
-    button img {
-      width: 3rem;
-    }
-
-    button span {
-      width: 100%;
-      text-align: center;
-      margin-top: 0.62rem;
+      > div > * + * {
+        margin-top: 0.1rem;
+      }
+      > * + * {
+        margin-left: 1rem;
+      }
+      :hover {
+        box-shadow: 0 6px 0 0 rgba(0, 0, 0, 0.18);
+        transform: translate(0, -3px);
+        opacity: 1;
+      }
+      :active {
+        box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.2);
+        transform: translate(0, 0);
+      }
+      img {
+        width: 2.4rem;
+      }
+      span {
+        width: 100%;
+        text-align: left;
+      }
+      small {
+        color: rgba(255, 255, 255, 0.62);
+      }
     }
   `,
   projects: css`
@@ -171,8 +183,8 @@ const style = {
     }
 
     img {
-      width: 4rem;
-      height: 4rem;
+      width: 3.6rem;
+      height: 3.6rem;
       border-radius: 1rem;
       flex: none;
       opacity: 0.8;
@@ -242,7 +254,7 @@ const style = {
   `
 };
 
-const Project = (removeProject, listProjects) => x =>
+const Project = x =>
   html`
     <li key=${x} className=${style.project}>
       <img
@@ -252,7 +264,7 @@ const Project = (removeProject, listProjects) => x =>
         href="#"
         onClick=${e => {
           e.preventDefault();
-          glu(`glu ${x}`)(listProjects);
+          glu(`glu ${x}`)();
         }}
       >
         <h3>${x.split('/').pop()}</h3>
@@ -331,22 +343,17 @@ const Project = (removeProject, listProjects) => x =>
           </svg>
           <span>Develop</span>
         </button>
-        <button onClick=${() => removeProject(x)}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path fill="none" d="M0 0h24v24H0V0z" />
-            <path
-              d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM6.24 5h11.52l.81.97H5.44l.8-.97zM5 19V8h14v11H5zm8.45-9h-2.9v3H8l4 4 4-4h-2.55z"
-            />
-          </svg>
-          <span>Archive</span>
-        </button>
       </aside>
     </li>
   `;
 
 const Template = launch => x => html`
   <button onClick=${() => launch(x)}>
-    <img src=${`/icons/${x}.png`} /><span>${x}</span>
+    <img src=${`/icons/${x}.png`} />
+    <div>
+      <span>${x}</span>
+      <small>lukejacksonn</small>
+    </div>
   </button>
 `;
 
@@ -357,21 +364,6 @@ const App = () => {
   const [search, setSearch] = React.useState('');
   const [templates, setTemplates] = React.useState([]);
 
-  const listProjects = () =>
-    glu(`node ${__dirname}/launcher/functions/getProjects.js`)(data => {
-      const projects = JSON.parse(data);
-      setProjects(
-        Object.keys(projects).sort(
-          (a, b) => projects[b].openTime - projects[a].openTime
-        )
-      );
-    });
-
-  const removeProject = async x => {
-    await glu(`node ${__dirname}/launcher/functions/removeProject.js ${x}`);
-    listProjects();
-  };
-
   const launch = async template => {
     const id = `glu-${template}-${Math.random()
       .toString(16)
@@ -379,7 +371,7 @@ const App = () => {
     await glu(`mkdir ${id}`)(console.log);
     await glu(`cp -r ${__dirname}/templates/${template}/. ${id}/`)(console.log);
 
-    glu(`glu ${id}`)(listProjects);
+    glu(`glu ${id}`)(console.log);
   };
 
   React.useEffect(() => {
@@ -388,7 +380,15 @@ const App = () => {
     glu(`ls ${__dirname}/templates`)(data =>
       setTemplates(data.trim().split('\n'))
     );
-    listProjects();
+    glu(`node ${__dirname}/launcher/functions/getProjects.js`)(data => {
+      console.log(data, JSON.parse(data));
+      const projects = JSON.parse(data);
+      setProjects(
+        Object.keys(projects).sort(
+          (a, b) => projects[b].openTime - projects[a].openTime
+        )
+      );
+    });
   }, []);
 
   const Footer = html`
@@ -417,31 +417,42 @@ const App = () => {
         : html`
             <nav className=${style.nav}>
               <img src="./logo.png" alt="glu" />
-              <input
-                onInput=${e => setSearch(e.target.value)}
-                type="search"
-                placeholder="Search for projects.."
-              />
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+              <form
+                onSubmit=${async e => {
+                  e.preventDefault();
+                  await glu(`git clone https://github.com/${search}`)(
+                    console.log
+                  );
+                  glu(`glu ${search.split('/')[1]}`)(console.log);
+                  setSearch('');
+                }}
+              >
+                <input
+                  onInput=${e => setSearch(e.target.value)}
+                  type="search"
+                  placeholder="Search for projects.."
                 />
-                <path d="M0 0h24v24H0z" fill="none" />
-              </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path
+                    d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                  />
+                  <path d="M0 0h24v24H0z" fill="none" />
+                </svg>
+              </form>
             </nav>
             <main className=${style.projects}>
               <div>
                 <h5>Quickstart Templates</h5>
                 <ul className=${style.templates}>
-                  ${templates.map(Template(launch))}
+                  ${templates
+                    .filter(x => x.match(search))
+                    .map(Template(launch))}
                 </ul>
               </div>
               <div>
                 <h5>Recent Projects</h5>
                 <ul>
-                  ${projects
-                    .filter(x => x.match(search))
-                    .map(Project(removeProject, listProjects))}
+                  ${projects.filter(x => x.match(search)).map(Project)}
                 </ul>
               </div>
             </main>
