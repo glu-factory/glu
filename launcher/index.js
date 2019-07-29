@@ -1,6 +1,6 @@
-import { React, ReactDOM } from 'https://unpkg.com/es-react@16.8.30';
-import css from 'https://unpkg.com/csz';
-import htm from 'https://unpkg.com/htm?module';
+import { React, ReactDOM } from './modules/es-react/index.js';
+import css from './modules/csz.js';
+import htm from './modules/htm.js';
 const html = htm.bind(React.createElement);
 
 const style = {
@@ -348,7 +348,7 @@ const Project = ({ id }) =>
   `;
 
 const Template = launch => x => html`
-  <button onClick=${() => launch(x)}>
+  <button key=${x} onClick=${() => launch(x)}>
     <img src=${`/icons/${x}.png`} />
     <div>
       <span>${x}</span>
