@@ -1,4 +1,4 @@
-import { React, ReactDOM } from 'https://unpkg.com/es-react-production@16.8.30';
+import { React, ReactDOM } from 'https://unpkg.com/es-react@16.8.30';
 import css from 'https://unpkg.com/csz';
 import htm from 'https://unpkg.com/htm?module';
 const html = htm.bind(React.createElement);
@@ -254,9 +254,9 @@ const style = {
   `
 };
 
-const Project = x =>
+const Project = ({ id }) =>
   html`
-    <li key=${x} className=${style.project}>
+    <li key=${id} className=${style.project}>
       <img
         src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
       />
@@ -264,14 +264,14 @@ const Project = x =>
         href="#"
         onClick=${e => {
           e.preventDefault();
-          glu(`glu ${x}`)();
+          glu(`glu ${id}`)();
         }}
       >
-        <h3>${x.split('/').pop()}</h3>
-        <small>${x}</small>
+        <h3>${id.split('/').pop()}</h3>
+        <small>${id}</small>
       </a>
       <aside>
-        <button onClick=${() => glu(`open ${x}`)(console.log)}>
+        <button onClick=${() => glu(`open ${id}`)(console.log)}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path d="M0 0h24v24H0z" fill="none" />
             <path
@@ -280,7 +280,7 @@ const Project = x =>
           </svg>
           <span>Browse</span>
         </button>
-        <button onClick=${() => glu(`code ${x}`)(console.log)}>
+        <button onClick=${() => glu(`code ${id}`)(console.log)}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
             <g>
               <g>
@@ -307,7 +307,7 @@ const Project = x =>
               <g>
                 <path
                   stroke="white"
-                  stroke-width="12px"
+                  strokeWidth="12px"
                   d="M454.416,407.678L326,179.381V58.286c11.641-4.127,20-15.248,20-28.286c0-16.542-13.458-30-30-30H196
                         c-16.542,0-30,13.458-30,30c0,13.038,8.359,24.159,20,28.286v121.095L57.584,407.678c-12.328,21.916-12.109,47.959,0.584,69.663
                         C70.86,499.043,93.448,512,118.59,512h274.82c25.142,0,47.729-12.957,60.422-34.659
@@ -381,12 +381,11 @@ const App = () => {
       setTemplates(data.trim().split('\n'))
     );
     glu(`node ${__dirname}/launcher/functions/getProjects.js`)(data => {
-      console.log(data, JSON.parse(data));
-      const projects = JSON.parse(data);
+      const p = JSON.parse(data);
       setProjects(
-        Object.keys(projects).sort(
-          (a, b) => projects[b].openTime - projects[a].openTime
-        )
+        Object.keys(p)
+          .sort((a, b) => p[b].openTime - p[a].openTime)
+          .reduce((a, b) => ({ ...a, [b]: p[b] }), {})
       );
     });
   }, []);
@@ -400,7 +399,7 @@ const App = () => {
 
   return html`
     ${projects
-      ? projects.length === 0
+      ? Object.keys(projects).length === 0
         ? html`
             <main className=${style.welcome}>
               <h1>Quickstart Templates</h1>
@@ -452,7 +451,14 @@ const App = () => {
               <div>
                 <h5>Recent Projects</h5>
                 <ul>
-                  ${projects.filter(x => x.match(search)).map(Project)}
+                  ${Object.keys(projects)
+                    .filter(k => k.match(search))
+                    .map(k =>
+                      Project({
+                        id: k,
+                        ...projects[k]
+                      })
+                    )}
                 </ul>
               </div>
             </main>
