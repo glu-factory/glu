@@ -211,10 +211,8 @@
       ? process.env.HOME + '/Library/Preferences'
       : process.env.HOME + '/.local/share') + '/glu';
   const dataFile = dataDir + '/projects.json';
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir);
-    fs.writeFileSync(dataFile, '{}');
-  }
+  !fs.existsSync(dataDir) && fs.mkdirSync(dataDir);
+  !fs.existsSync(dataFile) && fs.writeFileSync(dataFile, '{}');
   let projects = JSON.parse(fs.readFileSync(dataFile));
   // don't include launcher in recent projects list
   if (!launch) {

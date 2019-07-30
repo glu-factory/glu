@@ -4,7 +4,6 @@ const { APP_DATA } = require('./utils.js');
 
 // Fetch all the known projects
 const file = APP_DATA + '/projects.json';
-!fs.existsSync(file) && fs.writeFileSync(file, '{}');
 
 var watcher = sane(APP_DATA, { glob: 'projects.json' });
 watcher.on('ready', list);
