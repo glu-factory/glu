@@ -1,6 +1,7 @@
-import { React, ReactDOM } from './modules/es-react/index.js';
-import css from './modules/csz.js';
-import htm from './modules/htm.js';
+import { React, ReactDOM } from './web_modules/es-react.js';
+import css from './web_modules/csz.js';
+import htm from './web_modules/htm.js';
+
 const html = htm.bind(React.createElement);
 
 const style = {
@@ -381,6 +382,7 @@ const App = () => {
       setTemplates(data.trim().split('\n'))
     );
     glu(`node ${__dirname}/launcher/functions/getProjects.js`)(data => {
+      console.log(data);
       const p = JSON.parse(data);
       setProjects(
         Object.keys(p)

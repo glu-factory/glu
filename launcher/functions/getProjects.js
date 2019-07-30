@@ -1,11 +1,12 @@
 const fs = require('fs');
-const sane = require('sane');
+const watch = require('node-watch');
+
 const { APP_DATA } = require('./utils.js');
 
 // Fetch all the known projects
 const file = APP_DATA + '/projects.json';
 
-var watcher = sane(APP_DATA, { glob: 'projects.json' });
+var watcher = watch(file, {});
 watcher.on('ready', list);
 watcher.on('change', list);
 
