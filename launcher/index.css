@@ -29,3 +29,7 @@ body {
 main {
   flex: 1 1 100%;
 }
+
+body::-webkit-scrollbar {
+  width: 0;
+}

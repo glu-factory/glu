@@ -82,8 +82,17 @@ const style = {
     align-items: center;
     list-style: none;
     overflow-x: auto;
-    padding-bottom: 1.62rem;
-    margin-bottom: -1rem;
+    padding-bottom: 1rem;
+
+    &::-webkit-scrollbar {
+      height: 0.38rem;
+    }
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.2);
+    }
 
     > * + * {
       margin-left: 1rem;
