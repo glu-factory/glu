@@ -72,7 +72,7 @@
           e.code === 1011 ? rej(e) : res(e)
         );
         (async () => {
-          for await (const response of getResponse()) cb(response, off);
+          for await (const response of getResponse()) cb && cb(response, off);
         })();
       });
   };
