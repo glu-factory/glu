@@ -44,12 +44,6 @@
     ? root
     : path.join(process.cwd(), root);
 
-  // const id = `glu-${Math.random()
-  //   .toString(16)
-  //   .replace('0.', '')
-  //   .slice(5)}`;
-  // `mkdir ${id} && cp ${__dirname}/example/* ${id} && cd ${id} && glu`
-
   // ----------------------------------
   // Template clientside reload script
   // ----------------------------------
@@ -207,6 +201,27 @@
       });
     })
     .listen(parseInt(filePort, 10));
+
+  // ----------------------------------
+  // Update recent glu projects info
+  // ----------------------------------
+  const dataDir =
+    process.env.APPDATA ||
+    (process.platform == 'darwin'
+      ? process.env.HOME + '/Library/Preferences'
+      : process.env.HOME + '/.local/share') + '/glu';
+  const dataFile = dataDir + '/projects.json';
+  !fs.existsSync(dataDir) && fs.mkdirSync(dataDir);
+  !fs.existsSync(dataFile) && fs.writeFileSync(dataFile, '{}');
+  let projects = JSON.parse(fs.readFileSync(dataFile));
+  // don't include launcher in recent projects list
+  if (!launch) {
+    projects[cwd] = {
+      ...projects[cwd],
+      openTime: Date.now()
+    };
+  }
+  fs.writeFileSync(dataFile, JSON.stringify(projects));
 
   // ----------------------------------
   // Log startup details to terminal
