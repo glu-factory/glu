@@ -76,6 +76,24 @@ const style = {
       font-weight: lighter;
       color: rgba(255, 255, 255, 0.3);
     }
+
+    ul {
+      button {
+        flex-direction: column;
+        img {
+          width: 3rem;
+        }
+        div {
+          margin-left: 0;
+          > span {
+            margin-top: 0.38rem;
+          }
+          > small {
+            display: none;
+          }
+        }
+      }
+    }
   `,
   templates: css`
     display: flex;
@@ -115,7 +133,7 @@ const style = {
       transition: transform 0.3s, opacity 0.2s;
 
       > div > * + * {
-        margin-top: 0.1rem;
+        margin-top: 0.2rem;
       }
       > * + * {
         margin-left: 1rem;
