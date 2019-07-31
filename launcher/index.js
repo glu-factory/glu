@@ -268,7 +268,10 @@ const Project = ({ id }) =>
   html`
     <li key=${id} className=${style.project}>
       <img
-        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
+        src=${`~${id}/logo.png`}
+        onError=${e =>
+          (e.target.src =
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII=')}
       />
       <a
         href="#"
@@ -464,12 +467,7 @@ const App = () => {
                 <ul>
                   ${Object.keys(projects)
                     .filter(k => k.match(search))
-                    .map(k =>
-                      Project({
-                        id: k,
-                        ...projects[k]
-                      })
-                    )}
+                    .map(id => Project({ id, ...projects[id] }))}
                 </ul>
               </div>
             </main>
