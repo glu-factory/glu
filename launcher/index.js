@@ -213,7 +213,7 @@ const style = {
     img {
       width: 3.6rem;
       height: 3.6rem;
-      border-radius: 1rem;
+      border-radius: 0.5rem;
       flex: none;
       opacity: 0.8;
       transition: opacity 0.3s;
