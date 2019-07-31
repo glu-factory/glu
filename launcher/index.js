@@ -269,9 +269,7 @@ const Project = ({ id }) =>
     <li key=${id} className=${style.project}>
       <img
         src=${`~${id}/logo.png`}
-        onError=${e =>
-          (e.target.src =
-            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII=')}
+        onError=${e => (e.target.src = './icons/missing.png')}
       />
       <a
         href="#"
