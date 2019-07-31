@@ -186,7 +186,9 @@
       const isRoute = isRouteRequest(pathname);
       const status = isRoute && pathname !== '/' ? 301 : 200;
       const resource = isRoute ? `/${fallback}` : decodeURI(pathname);
-      const uri = path.join(cwd, resource);
+      const uri = pathname.startsWith('/~')
+        ? decodeURI(pathname).slice(2)
+        : path.join(cwd, resource);
       const ext = uri.replace(/^.*[\.\/\\]/, '').toLowerCase();
       isRoute && console.log('\n \x1b[44m', 'RELOADING', '\x1b[0m\n');
       // Check if files exists at the location
