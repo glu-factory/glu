@@ -78,8 +78,15 @@
   };
 
   const reloadScript = `
-  <script>
+  <script type="module">
     (() => {
+      fetch('./manifest.json').then(res => res.json())
+        .then(manifest => {
+          if(manifest.dimensions) window.resizeTo(
+            manifest.dimensions.width,
+            manifest.dimensions.height
+          )
+        });
       let reloading = false;
       const source = new WebSocket('ws://localhost:${reloadPort}');
       source.addEventListener('message', e => {
