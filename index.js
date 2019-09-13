@@ -31,18 +31,18 @@
 
   const args = process.argv.slice(2).filter(x => !~x.indexOf('--'));
 
+  const ignore = !!~process.argv.indexOf('--ignore');
   const root = args[0] || '.';
   const fallback = args[1] || 'index.html';
   const filePort = await port();
   const subPort = await port();
   const reloadPort = await port();
 
-  const launch = !!~process.argv.indexOf('--launch');
-  const cwd = launch
-    ? __dirname + '/launcher'
-    : root.startsWith('/')
-    ? root
-    : path.join(process.cwd(), root);
+  // the current working directory,
+  // i.e. the directory from which you invoked the `glu` command.
+  const cwd = process.cwd();
+  // the name of the directory we are serving `index.html` from
+  const dirname = root.startsWith('/') ? root : path.join(process.cwd(), root);
 
   // ----------------------------------
   // Template clientside reload script
@@ -102,7 +102,7 @@
       const __SUB_PORT__ = ${subPort};
       window.glu = ${glu.toString()}
       window.onbeforeunload = e => { !reloading && source.send('SIGINT') }
-      window.__dirname = '${__dirname}';
+      window.__dirname = '${dirname}';
     })();
   </script>
 `;
@@ -151,7 +151,7 @@
     };
     // Watch the target directory for changes and trigger reload
     fileWatcher && fileWatcher.close();
-    fileWatcher = fs.watch(cwd, { recursive: true }, () =>
+    fileWatcher = fs.watch(dirname, { recursive: true }, () =>
       socket.send('reload')
     );
     // Listen for window closing
@@ -168,7 +168,7 @@
     socket.on('message', body => {
       const [cmd, ...args] = body.split(' ');
       let proc = cproc.spawn(cmd, args, {
-        cwd: root.startsWith('/') ? root : path.join(process.cwd(), root)
+        cwd
       });
 
       ['stdout', 'stderr'].map(channel =>
@@ -195,7 +195,7 @@
       const resource = isRoute ? `/${fallback}` : decodeURI(pathname);
       const uri = pathname.startsWith('/~')
         ? decodeURI(pathname).slice(2)
-        : path.join(cwd, resource);
+        : path.join(dirname, resource);
       const ext = uri.replace(/^.*[\.\/\\]/, '').toLowerCase();
       isRoute && console.log('\n \x1b[44m', 'RELOADING', '\x1b[0m\n');
       // Check if files exists at the location
@@ -223,10 +223,10 @@
   !fs.existsSync(dataDir) && fs.mkdirSync(dataDir);
   !fs.existsSync(dataFile) && fs.writeFileSync(dataFile, '{}');
   let projects = JSON.parse(fs.readFileSync(dataFile));
-  // don't include launcher in recent projects list
-  if (!launch) {
-    projects[cwd] = {
-      ...projects[cwd],
+  // don't include ignored projects in recent projects list
+  if (!ignore) {
+    projects[dirname] = {
+      ...projects[dirname],
       openTime: Date.now()
     };
   }
