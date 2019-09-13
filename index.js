@@ -38,10 +38,10 @@
   const subPort = await port();
   const reloadPort = await port();
 
+  // the name of the directory we are serving `index.html` from
+  const cwd = process.cwd();
   // the current working directory,
   // i.e. the directory from which you invoked the `glu` command.
-  const cwd = process.cwd();
-  // the name of the directory we are serving `index.html` from
   const dirname = root.startsWith('/') ? root : path.join(process.cwd(), root);
 
   // ----------------------------------
@@ -102,7 +102,7 @@
       const __SUB_PORT__ = ${subPort};
       window.glu = ${glu.toString()}
       window.onbeforeunload = e => { !reloading && source.send('SIGINT') }
-      window.__dirname = '${dirname}';
+      window.__dirname = '${cwd}';
     })();
   </script>
 `;
@@ -168,7 +168,7 @@
     socket.on('message', body => {
       const [cmd, ...args] = body.split(' ');
       let proc = cproc.spawn(cmd, args, {
-        cwd
+        cwd: dirname
       });
 
       ['stdout', 'stderr'].map(channel =>
