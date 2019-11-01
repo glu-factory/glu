@@ -7,6 +7,9 @@
     "Alex Saunders <alexjrsaunders@gmail.com>",
     "Luke Jackson <lukejacksonn@gmail.com>"
   ],
+  "scripts": {
+    "start": "node index.js"
+  },
   "bin": {
     "glu": "./index.js"
   },
