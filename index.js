@@ -70,7 +70,9 @@ const availablePort = () =>
       addEventListener('keydown', e => e.key === 'r' && e.metaKey && (reloading = true));
       window.onbeforeunload = e => { !reloading && proc.send('SIGINT') };
       const __GLU_PORT__ = ${gluPort};
-      window.glu = ${glu.toString()}
+      window.glu = ${glu.toString()};
+      window.glu.cwd = () => "${process.cwd()}";
+      window.__dirname = "${dirname}";
     })();
   `;
 
