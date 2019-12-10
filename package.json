@@ -7,11 +7,15 @@
     "Alex Saunders <alexjrsaunders@gmail.com>",
     "Luke Jackson <lukejacksonn@gmail.com>"
   ],
+  "scripts": {
+    "start": "node index.js"
+  },
   "bin": {
     "glu": "./index.js"
   },
   "license": "MIT",
   "dependencies": {
+    "servor": "^3.0.5",
     "ws": "7.0.1"
   }
 }
