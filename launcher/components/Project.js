@@ -121,7 +121,7 @@ const Project = ({ id, meta }) =>
         <small>${meta.user}</small>
       </a>
       <aside>
-        <button onClick=${() => glu(`open ${id}`)(console.log)}>
+        <button onClick=${() => glu(`open "${meta.path}"`)(console.log)}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path d="M0 0h24v24H0z" fill="none" />
             <path
@@ -130,7 +130,7 @@ const Project = ({ id, meta }) =>
           </svg>
           <span>Browse</span>
         </button>
-        <button onClick=${() => glu(`code ${id}`)(console.log)}>
+        <button onClick=${() => glu(`code "${meta.path}"`)(console.log)}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
             <g>
               <g>
