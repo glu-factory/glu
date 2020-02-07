@@ -1,6 +1,6 @@
 {
   "name": "glu",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "repository": "git@github.com:lukejacksonn/glu.git",
   "contributors": [
@@ -17,5 +17,8 @@
   "dependencies": {
     "servor": "^3.0.5",
     "ws": "7.0.1"
+  },
+  "prettier": {
+    "singleQuote": true
   }
 }

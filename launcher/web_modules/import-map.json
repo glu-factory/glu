@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "csz": "./csz.js",
+    "es-react": "./es-react.js",
+    "htm": "./htm.js"
+  }
+}

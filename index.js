@@ -5,6 +5,7 @@ const url = require('url');
 const path = require('path');
 const http = require('http');
 const net = require('net');
+const os = require('os');
 const childProcess = require('child_process');
 const ws = require('ws');
 const servor = require('servor');
@@ -17,17 +18,32 @@ const availablePort = () =>
     });
   });
 
+const APPDATA =
+  process.env.APPDATA ||
+  (process.platform == 'darwin'
+    ? process.env.HOME + '/Library/Application Support'
+    : process.env.HOME + '/.local/share') + '/glu';
+
 (async () => {
-  const args = process.argv.slice(2).filter(x => !~x.indexOf('--'));
-  const ignore = !!~process.argv.indexOf('--ignore');
-  const root = args[0] || '.';
-  const fallback = args[1] || 'index.html';
-  const filePort = await availablePort();
+  const app = process.argv[2];
+  const root = app
+    ? path.join(APPDATA, app.replace('/', '@'))
+    : path.join(__dirname, 'launcher');
+
+  if (!fs.existsSync(APPDATA)) fs.mkdirSync(APPDATA);
+  if (app && !fs.existsSync(root)) {
+    const dir = app.replace('/', '@');
+    const cmd = `git clone https://github.com/${app} ${dir}`;
+    childProcess.execSync(cmd, { cwd: APPDATA });
+  }
+
+  let APPDATA_SERVER;
+  if (!app) {
+    APPDATA_SERVER = await servor({ root: APPDATA });
+  }
+
   const gluPort = await availablePort();
   const closePort = await availablePort();
-  const dirname = root.startsWith('/') ? root : path.join(process.cwd(), root);
-  let exit = () => process.exit();
-  process.on('SIGINT', () => exit());
 
   // ----------------------------------
   // Template client side reload script
@@ -62,19 +78,36 @@ const availablePort = () =>
   };
 
   const clientScript = `
-    (() => {
-      let reloading = false;
-      new EventSource('/livereload').onmessage = e => { reloading = true };
-      const proc = new WebSocket('ws://localhost:${closePort}');
-      proc.addEventListener('message', e => e.data === 'SIGINT' && window.close());
-      addEventListener('keydown', e => e.key === 'r' && e.metaKey && (reloading = true));
-      window.onbeforeunload = e => { !reloading && proc.send('SIGINT') };
-      const __GLU_PORT__ = ${gluPort};
-      window.glu = ${glu.toString()};
-      window.glu.cwd = () => "${process.cwd()}";
-      window.__dirname = "${dirname}";
-    })();
+    <script>
+      (() => {
+        let reloading = false;
+        new EventSource('/livereload').onmessage = e => { reloading = true };
+        const proc = new WebSocket('ws://localhost:${closePort}');
+        proc.addEventListener('message', e => e.data === 'SIGINT' && window.close());
+        addEventListener('keydown', e => e.key === 'r' && e.metaKey && (reloading = true));
+        window.onbeforeunload = e => { !reloading && proc.send('SIGINT') };
+        const __GLU_PORT__ = ${gluPort};
+        window.glu = ${glu.toString()};
+        window.glu.cwd = () => "${process.cwd()}";
+        window.__dirname = "${root}";
+        window.$HOME = "${os.homedir()}";
+        ${
+          app
+            ? ''
+            : `
+          window.glu.APPDATA = "${APPDATA}";
+          window.glu.APPDATA_SERVER = "${APPDATA_SERVER.url}";
+        `
+        }
+      })();
+    </script>
   `;
+
+  // ----------------------------------
+  // Setup a default process exit listener
+
+  let exit = () => process.exit();
+  process.on('SIGINT', () => exit());
 
   // ----------------------------------
   // Start close listening socket
@@ -96,8 +129,12 @@ const availablePort = () =>
   new ws.Server({ port: gluPort }).on('connection', socket => {
     socket.on('message', body => {
       // Extract command and arguments then run as child process
-      const [cmd, ...args] = body.split(' ');
-      let proc = childProcess.spawn(cmd, args, { cwd: dirname });
+      const [cmd, ...args] = body.match(/(?:[^\s"]+|"[^"]*")+/g);
+      let proc = childProcess.spawn(
+        cmd,
+        args.map(x => x.replace(/"/g, '')),
+        { cwd: root }
+      );
       // Forward standard out and error to the socket
       ['stdout', 'stderr'].map(channel =>
         proc[channel].on('data', out => socket.send(out.toString()))
@@ -115,10 +152,8 @@ const availablePort = () =>
   // ----------------------------------
   // Start static file server
 
-  servor({
+  const { port } = await servor({
     root,
-    fallback,
-    port: filePort,
     browse: false,
     reload: true,
     silent: true,
@@ -126,30 +161,9 @@ const availablePort = () =>
   });
 
   // ----------------------------------
-  // Update recent glu projects info
-
-  const dataDir =
-    process.env.APPDATA ||
-    (process.platform == 'darwin'
-      ? process.env.HOME + '/Library/Preferences'
-      : process.env.HOME + '/.local/share') + '/glu';
-  const dataFile = dataDir + '/projects.json';
-  !fs.existsSync(dataDir) && fs.mkdirSync(dataDir);
-  !fs.existsSync(dataFile) && fs.writeFileSync(dataFile, '{}');
-  let projects = JSON.parse(fs.readFileSync(dataFile));
-  // Don't include ignored projects in recent projects list
-  if (!ignore && fs.existsSync(path.join(dirname, 'index.html'))) {
-    projects[dirname] = {
-      ...projects[dirname],
-      openTime: Date.now()
-    };
-  }
-  fs.writeFileSync(dataFile, JSON.stringify(projects));
-
-  // ----------------------------------
   // Open in headless chrome
 
   childProcess.exec(
-    `/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --app='http://localhost:${filePort}'`
+    `/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --app='http://localhost:${port}'`
   );
 })();
