@@ -124,7 +124,7 @@ const style = {
 const App = () => {
   const cwd = glu.cwd();
   const [launcherVersion, setLauncherVersion] = React.useState('');
-  const [projects, setProjects] = React.useState({});
+  const [projects, setProjects] = React.useState(null);
   const [search, setSearch] = React.useState('');
   const [hasSearched, setHasSearched] = React.useState(false);
   const [templates, setTemplates] = React.useState([]);
