@@ -80,12 +80,12 @@ const APPDATA =
   const clientScript = `
     <script>
       (() => {
-        let reloading = false;
-        new EventSource('/livereload').onmessage = e => { reloading = true };
+        window.DONT_KILL = false;
+        new EventSource('/livereload').onmessage = e => { DONT_KILL = true };
         const proc = new WebSocket('ws://localhost:${closePort}');
         proc.addEventListener('message', e => e.data === 'SIGINT' && window.close());
-        addEventListener('keydown', e => e.key === 'r' && e.metaKey && (reloading = true));
-        window.onbeforeunload = e => { !reloading && proc.send('SIGINT') };
+        addEventListener('keydown', e => e.key === 'r' && e.metaKey && (DONT_KILL = true));
+        window.onbeforeunload = e => { !DONT_KILL && proc.send('SIGINT') };
         const __GLU_PORT__ = ${gluPort};
         window.glu = ${glu.toString()};
         window.glu.cwd = () => "${process.cwd()}";

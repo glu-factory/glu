@@ -148,8 +148,6 @@ const Search = ({ value, onChange }) => {
   // queues an array of values to update the progress bar with
   const updateProgressBar = values => {
     // if new values take priority over currently queued values
-    // (hardcoded to check for first of new values being 0 or 100
-    // - it could perhaps be a parameter to this function?)
     const priority = values[0] === 0 || values[0] === 100;
     queue = priority
       ? [...queue.slice(0, queuePos), ...values]

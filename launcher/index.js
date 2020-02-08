@@ -7,6 +7,7 @@ import Search from './components/Search.js';
 import Project from './components/Project.js';
 import Template from './components/Template.js';
 import Tooltip from './components/Tooltip.js';
+import Login from './components/Login.js';
 
 const html = htm.bind(React.createElement);
 
@@ -121,23 +122,50 @@ const style = {
   `
 };
 
+const setGithubAccessTokenCookie = val => {
+  const now = new Date();
+  now.setFullYear(now.getFullYear() + 1);
+  document.cookie = `github_access_token=${val};expires=${now.toGMTString()};path=/`;
+};
+
+const getGithubAccessTokenCookie = () =>
+  `; ${document.cookie}`
+    .split('; github_access_token=')
+    .pop()
+    .split(';')
+    .shift();
+
 const App = () => {
   const cwd = glu.cwd();
+  const [githubAccessToken, setGithubAccessToken] = React.useState(
+    getGithubAccessTokenCookie()
+  );
   const [launcherVersion, setLauncherVersion] = React.useState('');
   const [projects, setProjects] = React.useState({});
   const [search, setSearch] = React.useState('');
   const [hasSearched, setHasSearched] = React.useState(false);
   const [templates, setTemplates] = React.useState([]);
 
+  React.useEffect(() => {
+    setGithubAccessTokenCookie(githubAccessToken);
+  }, [githubAccessToken]);
+
   const launch = async template => {
-    glu('git config user.name')(async user => {
-      const name = prompt('Name this project..');
-      const dest = `${window.glu.APPDATA}/${user.trim()}@${name}`;
-      await glu(`mkdir "${dest}"`)(console.log);
-      await glu(`cp -r ${__dirname}/templates/${template}/. "${dest}/"`)(
-        console.log
-      );
-    });
+    fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `token ${githubAccessToken}`,
+        Accept: 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(async ({ login }) => {
+        const name = prompt('Name this project..');
+        const dest = `${window.glu.APPDATA}/${login}@${name}`;
+        await glu(`mkdir "${dest}"`)(console.log);
+        await glu(`cp -r ${__dirname}/templates/${template}/. "${dest}/"`)(
+          console.log
+        );
+      });
   };
 
   const publish = async template => {
@@ -171,44 +199,18 @@ const App = () => {
     </footer>
   `;
 
-  return html`
-    ${projects
-      ? Object.keys(projects).length === 0
-        ? html`
-            <main className=${style.welcome} key="main">
-              <h1>Quickstart Templates</h1>
-              <ul className=${style.templates}>
-                ${templates.map(
-                  x =>
-                    html`
-                      <${Template} key=${x} template=${x} launch=${launch} />
-                    `
-                )}
-              </ul>
-              <p>
-                It looks like you haven't started or opened any glu projects
-                yet, choose a template!
-              </p>
-            </main>
-            ${Footer}
-          `
-        : html`
-            <nav className=${style.nav} key="nav">
-              <div className=${style.navItems}>
-                <${Search} value=${search} onChange=${handleSearch} />
-                <${Tooltip}
-                  show=${!hasSearched && Object.keys(projects).length < 2}
-                  onChange=${handleSearch}
-                />
-              </div>
-            </nav>
-            <main className=${style.main} key="main">
-              <div>
-                <h5>Quickstart Templates</h5>
-                <ul className=${style.templates}>
-                  ${templates
-                    .filter(x => x.match(search))
-                    .map(
+  return !githubAccessToken
+    ? html`
+        <${Login} setGithubAccessToken=${setGithubAccessToken} />
+      `
+    : html`
+        ${projects
+          ? Object.keys(projects).length === 0
+            ? html`
+                <main className=${style.welcome} key="main">
+                  <h1>Quickstart Templates</h1>
+                  <ul className=${style.templates}>
+                    ${templates.map(
                       x =>
                         html`
                           <${Template}
@@ -218,31 +220,73 @@ const App = () => {
                           />
                         `
                     )}
-                </ul>
-              </div>
-              <div>
-                <h5>Recent Projects</h5>
-                <ul className=${style.projects}>
-                  ${Object.entries(projects)
-                    .filter(([k, v]) => k.match(search))
-                    .map(
-                      ([k, v]) =>
-                        html`
-                          <${Project} key=${k} id=${k} meta=${v} />
-                        `
-                    )}
-                </ul>
-              </div>
-            </main>
-            ${Footer}
-          `
-      : null}
-  `;
+                  </ul>
+                  <p>
+                    It looks like you haven't started or opened any glu projects
+                    yet, choose a template!
+                  </p>
+                </main>
+                ${Footer}
+              `
+            : html`
+                <nav className=${style.nav} key="nav">
+                  <div className=${style.navItems}>
+                    <${Search} value=${search} onChange=${handleSearch} />
+                    <${Tooltip}
+                      show=${!hasSearched && Object.keys(projects).length < 2}
+                      onChange=${handleSearch}
+                    />
+                  </div>
+                </nav>
+                <main className=${style.main} key="main">
+                  <div>
+                    <h5>Quickstart Templates</h5>
+                    <ul className=${style.templates}>
+                      ${templates
+                        .filter(x => x.match(search))
+                        .map(
+                          x =>
+                            html`
+                              <${Template}
+                                key=${x}
+                                template=${x}
+                                launch=${launch}
+                              />
+                            `
+                        )}
+                    </ul>
+                  </div>
+                  <div>
+                    <h5>Recent Projects</h5>
+                    <ul className=${style.projects}>
+                      ${Object.entries(projects)
+                        .filter(([k, v]) => k.match(search))
+                        .map(
+                          ([k, v]) =>
+                            html`
+                              <${Project} key=${k} id=${k} meta=${v} />
+                            `
+                        )}
+                    </ul>
+                  </div>
+                </main>
+                ${Footer}
+              `
+          : null}
+      `;
 };
 
-ReactDOM.render(
-  html`
-    <${App} />
-  `,
-  document.getElementById('root')
+const temporaryAccessToken = new URLSearchParams(window.location.search).get(
+  'code'
 );
+if (temporaryAccessToken && window.opener) {
+  window.DONT_KILL = true;
+  window.opener.sendTemporaryAccessToken(temporaryAccessToken);
+} else {
+  ReactDOM.render(
+    html`
+      <${App} />
+    `,
+    document.getElementById('root')
+  );
+}
