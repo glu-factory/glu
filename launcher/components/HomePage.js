@@ -63,6 +63,14 @@ function HomePage() {
   const Footer = () => html`
     <footer className=${style.footer} key="footer">
       <span>${`${user.name} (${user.login})`}</span>
+      <button
+        onClick=${() =>
+          setTimeout(() => {
+            dispatch({ type: 'setGithubAccessToken', payload: '' });
+          }, 300)}
+      >
+        logout
+      </button>
     </footer>
   `;
 
