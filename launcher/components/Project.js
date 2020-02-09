@@ -103,13 +103,14 @@ const style = {
 
         h3 {
           font-size: 1.17rem;
+          line-height: 1.3rem;
           white-space: nowrap;
           text-overflow: ellipsis;
           overflow: hidden;
         }
         small {
           font-size: 0.83rem;
-          margin-top: 0.38rem;
+          padding-top: 0.38rem;
           opacity: 0.62;
           white-space: nowrap;
           text-overflow: ellipsis;
