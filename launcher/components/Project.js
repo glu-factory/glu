@@ -3,20 +3,21 @@ import { React, css, html } from '../utils/webModules.js';
 const Project = ({ id, meta }) =>
   html`
     <li className=${style.project}>
-      <img
-        src=${`${window.glu.APPDATA_SERVER}/${id}/logo.png`}
-        onError=${e => (e.target.src = './icons/missing.png')}
-      />
-      <a
-        href=${id}
+      <button
         onClick=${e => {
           e.preventDefault();
           glu(`glu ${id}`)(console.log);
         }}
       >
-        <h3>${meta.name}</h3>
-        <small>${meta.user}</small>
-      </a>
+        <img
+          src=${`${window.glu.APPDATA_SERVER}/${id}/logo.png`}
+          onError=${e => (e.target.src = './icons/missing.png')}
+        />
+        <div>
+          <h3>${meta.name}</h3>
+          <small>${meta.user}</small>
+        </div>
+      </button>
       <aside>
         <button onClick=${() => glu(`open "${meta.path}"`)(console.log)}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -57,92 +58,94 @@ const style = {
   project: css`
     display: flex;
     align-items: center;
+    padding: 0.5rem 0;
     opacity: 0.62;
     transition: opacity 0.1s;
 
     & + & {
       border-top: 1px solid rgba(255, 255, 255, 0.062);
-      padding-top: 1rem;
-      margin-top: 1rem;
     }
 
     &:hover {
       opacity: 1;
     }
 
-    > a {
+    > button {
       flex: 1 1 100%;
       display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      flex-direction: row;
+      align-items: center;
       transition: transform 0.5s;
       color: inherit;
       text-decoration: none;
-      padding: 0.38rem 1rem;
-      > * + * {
-        margin-top: 0.38rem;
+      padding: 0.38rem 1rem 0.38rem 0.38rem;
+
+      img {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 1rem;
+        padding: 0.5rem;
+        flex: none;
+        opacity: 0.8;
+        transition: opacity 0.3s;
       }
-    }
+      &:hover img {
+        opacity: 1;
+        transform: scale(1.1);
+      }
 
-    span {
-      display: none;
-    }
+      div {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        overflow: hidden;
+        margin-left: 1rem;
 
-    img {
-      width: 3rem;
-      height: 3rem;
-      border-radius: 1rem;
-      flex: none;
-      opacity: 0.8;
-      transition: opacity 0.3s;
-    }
-
-    &:hover img {
-      opacity: 1;
-      transform: scale(1.1);
-    }
-
-    h3 {
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-
-    small {
-      opacity: 0.62;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
+        h3 {
+          font-size: 1.17rem;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+        small {
+          font-size: 0.83rem;
+          margin-top: 0.38rem;
+          opacity: 0.62;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+      }
     }
 
     aside {
       display: flex;
-    }
 
-    button {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: none;
-      padding: 0.62rem;
-      border: 0;
-      background: rgba(0, 0, 0, 0.3);
-      color: #fff;
-      text-transform: uppercase;
-      font-size: 0.5rem;
-      opacity: 0.38;
+      button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: none;
+        padding: 0.62rem;
+        border: 0;
+        background: rgba(0, 0, 0, 0.3);
+        color: #fff;
+        text-transform: uppercase;
+        font-size: 0.5rem;
+        opacity: 0.38;
 
-      &:hover {
-        opacity: 0.9;
-      }
+        &:hover {
+          opacity: 0.9;
+        }
 
-      > * + * {
-        margin-top: 0.38rem;
-      }
+        > * + * {
+          margin-top: 0.38rem;
+        }
 
-      svg {
-        width: 1.38rem;
-        fill: #fff;
+        svg {
+          width: 1.38rem;
+          fill: #fff;
+        }
       }
     }
   `
