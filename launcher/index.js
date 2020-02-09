@@ -92,18 +92,18 @@ const style = {
     }
   `,
   projects: css`
-    padding: 1.38rem 0;
+    padding: 0 1rem 2.62rem;
   `,
   main: css`
-    padding: 2rem;
+    padding: 1.38rem;
     > * + * {
       margin-top: 2rem;
     }
     h5 {
-      padding-bottom: 1.38rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       color: rgba(255, 255, 255, 0.3);
       font-size: 1rem;
+      margin-right: auto;
     }
   `,
   footer: css`
@@ -159,7 +159,9 @@ const App = () => {
     })
       .then(res => res.json())
       .then(async ({ login }) => {
-        const name = prompt('Name this project..');
+        const name =
+          prompt('Name this project..') ||
+          `project-` + ((Math.random() * 99999) << 0).toString(16);
         const dest = `${window.glu.APPDATA}/${login}@${name}`;
         await glu(`mkdir "${dest}"`)(console.log);
         await glu(`cp -r ${__dirname}/templates/${template}/. "${dest}/"`)(
