@@ -12,7 +12,6 @@ const getGithubAccessTokenCookie = () =>
     .shift();
 
 const initialState = {
-  launcherVersion: '',
   githubAccessToken: getGithubAccessTokenCookie(),
   projects: null,
   templates: null,
@@ -22,8 +21,6 @@ const initialState = {
 
 function reducer(state, action) {
   switch (action.type) {
-    case 'setLauncherVersion':
-      return { ...state, launcherVersion: action.payload };
     case 'setGithubAccessToken':
       return { ...state, githubAccessToken: action.payload };
     case 'setProjects':
