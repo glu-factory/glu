@@ -8,7 +8,7 @@ const Project = ({ id, meta }) =>
         onError=${e => (e.target.src = './icons/missing.png')}
       />
       <a
-        href="#"
+        href=${id}
         onClick=${e => {
           e.preventDefault();
           glu(`glu ${id}`)(console.log);
@@ -70,10 +70,6 @@ const style = {
       opacity: 1;
     }
 
-    > * + * {
-      margin-left: 1rem;
-    }
-
     > a {
       flex: 1 1 100%;
       display: flex;
@@ -82,7 +78,7 @@ const style = {
       transition: transform 0.5s;
       color: inherit;
       text-decoration: none;
-      padding: 0.38rem;
+      padding: 0.38rem 1rem;
       > * + * {
         margin-top: 0.38rem;
       }

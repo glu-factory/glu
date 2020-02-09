@@ -2,6 +2,7 @@ import { React, css, html } from '../utils/webModules.js';
 import { useStateValue } from '../utils/globalState.js';
 
 import LoadingBar from './LoadingBar.js';
+import Tooltip from './Tooltip.js';
 
 function debounce(callback, time) {
   let interval;
@@ -55,7 +56,7 @@ const reducer = (state, action) => {
 
 const Search = () => {
   const [globalState, globalDispatch] = useStateValue();
-  const { searchTerm } = globalState;
+  const { searchTerm, hasSearched, projects } = globalState;
 
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
@@ -113,13 +114,13 @@ const Search = () => {
   const cloneProject = async url => {
     const projectName = url.split('/')[1];
     updateProgressBar([40, 75]);
-    await glu(`glu ${url}`)()
-      .then(
-        () => (
-          updateProgressBar([100, 0]),
-          globalDispatch({ type: 'setSearchTerm', payload: '' })
-        )
-      )
+    await glu(`glu ${url}`)(output => {
+      if (output.match(`Cloning into 'lukejacksonn@perflink'...`)) {
+        updateProgressBar([100, 0]);
+        globalDispatch({ type: 'setSearchTerm', payload: '' });
+      }
+    })
+      .then(() => {})
       .catch(
         err => (
           updateProgressBar([0]),
@@ -143,7 +144,7 @@ const Search = () => {
       className=${style.form}
       onSubmit=${async e => {
         e.preventDefault();
-        state.clonable && cloneProject(value);
+        state.clonable && cloneProject(searchTerm);
       }}
     >
       <input
@@ -184,6 +185,7 @@ const Search = () => {
           <path d="M0 0h24v24H0z" fill="none" />
         </svg>
       </label>
+      <${Tooltip} show=${!hasSearched && Object.keys(projects).length < 2} />
     </form>
   `;
 };
@@ -193,11 +195,10 @@ const style = {
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 0 1.38rem 0 0;
+    padding: 0 0.69rem 0 0;
 
     position: relative;
     flex: 1 1 100%;
-    background: rgba(0, 0, 0, 0.1);
   `,
   label: css`
     position: relative;

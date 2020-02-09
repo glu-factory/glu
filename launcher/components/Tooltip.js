@@ -1,6 +1,8 @@
 import { React, css, html } from '../utils/webModules.js';
+import { useStateValue } from '../utils/globalState.js';
 
 const Tooltip = ({ show, onChange }) => {
+  const [state, dispatch] = useStateValue();
   const [active, setActive] = React.useState(false);
 
   React.useEffect(() => {
@@ -12,7 +14,8 @@ const Tooltip = ({ show, onChange }) => {
       Try entering a Github URL to clone a project!
       <button
         className=${style.button}
-        onClick=${() => onChange('lukejacksonn/perflink')}
+        onClick=${() =>
+          dispatch({ type: 'setSearchTerm', payload: 'lukejacksonn/perflink' })}
       >
         Show Me
       </button>

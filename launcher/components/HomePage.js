@@ -1,24 +1,16 @@
 import { React, html, css } from '../utils/webModules.js';
 import { useStateValue } from '../utils/globalState.js';
 
+import Profile from './Profile.js';
 import LoadingBar from './LoadingBar.js';
 import Search from './Search.js';
-import Project from './Project.js';
+import Projects from './Projects.js';
 import Template from './Template.js';
-import Tooltip from './Tooltip.js';
 
 function HomePage() {
   const cwd = glu.cwd();
-  const [user, setUser] = React.useState(null);
   const [state, dispatch] = useStateValue();
-  const {
-    launcherVersion,
-    projects,
-    templates,
-    githubAccessToken,
-    searchTerm,
-    hasSearched
-  } = state;
+  const { projects, templates, githubAccessToken, user } = state;
 
   React.useEffect(() => {
     fetch('https://api.github.com/user', {
@@ -34,8 +26,8 @@ function HomePage() {
           return res.json();
         }
       })
-      .then(setUser);
-  });
+      .then(user => dispatch({ type: 'setUser', payload: user }));
+  }, [githubAccessToken]);
 
   React.useEffect(() => {
     glu(`ls ${__dirname}/templates`)(data =>
@@ -71,90 +63,64 @@ function HomePage() {
   const Footer = html`
     <footer className=${style.footer} key="footer">
       <span>${cwd.replace(window.$HOME, '~')}</span>
-      <span>${launcherVersion && `v${launcherVersion}`}</span>
     </footer>
   `;
 
-  const Templates = () => html`
-    <div
-      className=${css`
-        display: flex;
-        align-items: center;
-        background: rgba(0, 0, 0, 0.138);
-        padding: 1rem;
-        border-radius: 1rem;
-        img {
-          width: 1.38rem;
-          margin-left: 0.62rem;
-          &:hover {
-            transform: scale(1.2);
-          }
-        }
-      `}
-    >
+  const TemplatesToolbar = () => html`
+    <div className=${style.templatesToolbar}>
       <h5>Quickstart Templates:</h5>
       ${templates.map(
         x =>
           html`
-            <img onClick=${() => launch(x)} src="/icons/${x}.png" />
+            <button onClick=${() => launch(x)} key=${x}>
+              <img src="/icons/${x}.png" />
+            </button>
           `
       )}
     </div>
   `;
 
-  const Projects = () => html`
-    ${Object.keys(projects).length === 0
-      ? html`
-          <main className=${style.welcome} key="main">
-            <h1>Quickstart Templates</h1>
-            <ul className=${style.templates}>
-              ${templates.map(
-                x =>
-                  html`
-                    <${Template} key=${x} template=${x} launch=${launch} />
-                  `
-              )}
-            </ul>
-            <p>
-              It looks like you haven't started or opened any glu projects yet,
-              choose a template!
-            </p>
-          </main>
-          ${Footer}
-        `
-      : html`
-          <nav className=${style.nav} key="nav">
-            <div className=${style.navItems}>
-              <${Search} />
-              <${Tooltip}
-                show=${!hasSearched && Object.keys(projects).length < 2}
-              />
-            </div>
-          </nav>
-          <main className=${style.main} key="main">
-            <${Templates} />
-            <div>
-              <ul className=${style.projects}>
-                ${Object.entries(projects)
-                  .filter(([k]) => k.match(searchTerm))
-                  .sort(([, a], [, b]) => (a.mtime > b.mtime ? -1 : 0))
-                  .map(
-                    ([k, v]) =>
-                      html`
-                        <${Project} key=${k} id=${k} meta=${v} />
-                      `
-                  )}
-              </ul>
-            </div>
-          </main>
-          ${Footer}
-        `}
-  `;
-
   return user
     ? projects
       ? html`
-          <${Projects} />
+          ${Object.keys(projects).length === 0
+            ? html`
+                <main className=${style.welcome} key="main">
+                  <h1>Quickstart Templates</h1>
+                  <ul className=${style.templates}>
+                    ${templates.map(
+                      x =>
+                        html`
+                          <${Template}
+                            key=${x}
+                            template=${x}
+                            launch=${launch}
+                          />
+                        `
+                    )}
+                  </ul>
+                  <p>
+                    It looks like you haven't started or opened any glu projects
+                    yet, choose a template!
+                  </p>
+                </main>
+                ${Footer}
+              `
+            : html`
+                <nav className=${style.nav} key="nav">
+                  <div className=${style.navItems}>
+                    <${Search} />
+                    <${Profile} />
+                  </div>
+                </nav>
+                <main className=${style.main} key="main">
+                  <${TemplatesToolbar} />
+                  <div>
+                    <${Projects} />
+                  </div>
+                </main>
+                ${Footer}
+              `}
         `
       : null
     : html`
@@ -242,8 +208,22 @@ const style = {
       margin-left: 1rem;
     }
   `,
-  projects: css`
-    padding: 0 1rem 2.62rem;
+  templatesToolbar: css`
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.138);
+    padding: 1rem;
+    border-radius: 1rem;
+    button {
+      margin-left: 0.62rem;
+      &:hover {
+        transform: scale(1.2);
+      }
+
+      img {
+        width: 1.38rem;
+      }
+    }
   `,
   main: css`
     padding: 1.38rem;
@@ -251,7 +231,6 @@ const style = {
       margin-top: 2rem;
     }
     h5 {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       color: rgba(255, 255, 255, 0.3);
       font-size: 1rem;
       margin-right: auto;

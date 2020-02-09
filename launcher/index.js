@@ -19,6 +19,7 @@ const setGithubAccessTokenCookie = val => {
 
 const initialState = {
   githubAccessToken: getGithubAccessTokenCookie(),
+  user: null,
   projects: null,
   templates: null,
   hasSearched: false,
@@ -29,6 +30,8 @@ function reducer(state, action) {
   switch (action.type) {
     case 'setGithubAccessToken':
       return { ...state, githubAccessToken: action.payload };
+    case 'setUser':
+      return { ...state, user: action.payload };
     case 'setProjects':
       return { ...state, projects: action.payload };
     case 'setTemplates':
