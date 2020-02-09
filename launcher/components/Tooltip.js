@@ -1,8 +1,24 @@
-import { React, ReactDOM } from '../web_modules/es-react.js';
-import css from '../web_modules/csz.js';
-import htm from '../web_modules/htm.js';
+import { React, css, html } from '../utils/webModules.js';
 
-const html = htm.bind(React.createElement);
+const Tooltip = ({ show, onChange }) => {
+  const [active, setActive] = React.useState(false);
+
+  React.useEffect(() => {
+    setTimeout(setActive, 2000, true);
+  }, []);
+
+  return html`
+    <div className=${`${style.tooltip} ${active && show && 'active'}`}>
+      Try entering a Github URL to clone a project!
+      <button
+        className=${style.button}
+        onClick=${() => onChange('lukejacksonn/perflink')}
+      >
+        Show Me
+      </button>
+    </div>
+  `;
+};
 
 const style = {
   tooltip: css`
@@ -60,26 +76,6 @@ const style = {
       color: rgba(255, 255, 255, 0.7);
     }
   `
-};
-
-const Tooltip = ({ show, onChange }) => {
-  const [active, setActive] = React.useState(false);
-
-  React.useEffect(() => {
-    setTimeout(setActive, 2000, true);
-  }, []);
-
-  return html`
-    <div className=${`${style.tooltip} ${active && show && 'active'}`}>
-      Try entering a Github URL to clone a project!
-      <button
-        className=${style.button}
-        onClick=${() => onChange('lukejacksonn/perflink')}
-      >
-        Show Me
-      </button>
-    </div>
-  `;
 };
 
 export default Tooltip;

@@ -1,8 +1,57 @@
-import { React, ReactDOM } from '../web_modules/es-react.js';
-import css from '../web_modules/csz.js';
-import htm from '../web_modules/htm.js';
+import { React, css, html } from '../utils/webModules.js';
 
-const html = htm.bind(React.createElement);
+const Project = ({ id, meta }) =>
+  html`
+    <li className=${style.project}>
+      <img
+        src=${`${window.glu.APPDATA_SERVER}/${id}/logo.png`}
+        onError=${e => (e.target.src = './icons/missing.png')}
+      />
+      <a
+        href="#"
+        onClick=${e => {
+          e.preventDefault();
+          glu(`glu ${id}`)(console.log);
+        }}
+      >
+        <h3>${meta.name}</h3>
+        <small>${meta.user}</small>
+      </a>
+      <aside>
+        <button onClick=${() => glu(`open "${meta.path}"`)(console.log)}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path
+              d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h4v-2H5V8h14v10h-4v2h4c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm-7 6l-4 4h3v6h2v-6h3l-4-4z"
+            />
+          </svg>
+          <span>Browse</span>
+        </button>
+        <button onClick=${() => glu(`code "${meta.path}"`)(console.log)}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0V0z" fill="none" />
+            <path
+              d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"
+            />
+          </svg>
+          <span>Develop</span>
+        </button>
+        <button
+          onClick=${() =>
+            confirm(`Are you sure you want to remove ${meta.name}?`) &&
+            glu(`rm -rf "${meta.path}"`)(console.log)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4z"
+            />
+            <path d="M0 0h24v24H0V0z" fill="none" />
+          </svg>
+          <span>Remove</span>
+        </button>
+      </aside>
+    </li>
+  `;
 
 const style = {
   project: css`
@@ -102,58 +151,5 @@ const style = {
     }
   `
 };
-
-const Project = ({ id, meta }) =>
-  html`
-    <li className=${style.project}>
-      <img
-        src=${`${window.glu.APPDATA_SERVER}/${id}/logo.png`}
-        onError=${e => (e.target.src = './icons/missing.png')}
-      />
-      <a
-        href="#"
-        onClick=${e => {
-          e.preventDefault();
-          glu(`glu ${id}`)(console.log);
-        }}
-      >
-        <h3>${meta.name}</h3>
-        <small>${meta.user}</small>
-      </a>
-      <aside>
-        <button onClick=${() => glu(`open "${meta.path}"`)(console.log)}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path
-              d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h4v-2H5V8h14v10h-4v2h4c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm-7 6l-4 4h3v6h2v-6h3l-4-4z"
-            />
-          </svg>
-          <span>Browse</span>
-        </button>
-        <button onClick=${() => glu(`code "${meta.path}"`)(console.log)}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path
-              d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"
-            />
-          </svg>
-          <span>Develop</span>
-        </button>
-        <button
-          onClick=${() =>
-            confirm(`Are you sure you want to remove ${meta.name}?`) &&
-            glu(`rm -rf "${meta.path}"`)(console.log)}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-              d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4z"
-            />
-            <path d="M0 0h24v24H0V0z" fill="none" />
-          </svg>
-          <span>Remove</span>
-        </button>
-      </aside>
-    </li>
-  `;
 
 export default Project;

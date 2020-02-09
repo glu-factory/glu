@@ -1,8 +1,4 @@
-import { React } from '../web_modules/es-react.js';
-import css from '../web_modules/csz.js';
-import htm from '../web_modules/htm.js';
-
-const html = htm.bind(React.createElement);
+import { React, css, html } from '../utils/webModules.js';
 
 const style = {
   container: css`
