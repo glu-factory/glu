@@ -9,6 +9,7 @@ import Tooltip from './Tooltip.js';
 
 function HomePage() {
   const cwd = glu.cwd();
+  const [user, setUser] = React.useState(null);
   const [state, dispatch] = useStateValue();
   const {
     launcherVersion,
@@ -20,6 +21,23 @@ function HomePage() {
   } = state;
 
   React.useEffect(() => {
+    fetch('https://api.github.com/user', {
+      headers: {
+        Authorization: `token ${githubAccessToken}`,
+        Accept: 'application/json'
+      }
+    })
+      .then(res => {
+        if (res.status !== 200) {
+          dispatch({ type: 'setGithubAccessToken', payload: '' });
+        } else {
+          return res.json();
+        }
+      })
+      .then(setUser);
+  });
+
+  React.useEffect(() => {
     glu(`ls ${__dirname}/templates`)(data =>
       dispatch({ type: 'setTemplates', payload: data.trim().split('\n') })
     );
@@ -29,23 +47,15 @@ function HomePage() {
   }, []);
 
   const launch = async template => {
-    fetch('https://api.github.com/user', {
-      headers: {
-        Authorization: `token ${githubAccessToken}`,
-        Accept: 'application/json'
-      }
-    })
-      .then(res => res.json())
-      .then(async ({ login }) => {
-        const name =
-          prompt('Name this project..') ||
-          `project-` + ((Math.random() * 99999) << 0).toString(16);
-        const dest = `${window.glu.APPDATA}/${login}@${name}`;
-        await glu(`mkdir "${dest}"`)(console.log);
-        await glu(`cp -r ${__dirname}/templates/${template}/. "${dest}/"`)(
-          console.log
-        );
-      });
+    const { login } = user;
+    const name =
+      prompt('Name this project..') ||
+      `project-` + ((Math.random() * 99999) << 0).toString(16);
+    const dest = `${window.glu.APPDATA}/${login}@${name}`;
+    await glu(`mkdir "${dest}"`)(console.log);
+    await glu(`cp -r ${__dirname}/templates/${template}/. "${dest}/"`)(
+      console.log
+    );
   };
 
   const publish = async template => {
@@ -65,79 +75,91 @@ function HomePage() {
     </footer>
   `;
 
-  return html`
-    ${projects
-      ? Object.keys(projects).length === 0
-        ? html`
-            <main className=${style.welcome} key="main">
-              <h1>Quickstart Templates</h1>
-              <ul className=${style.templates}>
-                ${templates.map(
-                  x =>
-                    html`
-                      <${Template} key=${x} template=${x} launch=${launch} />
-                    `
-                )}
-              </ul>
-              <p>
-                It looks like you haven't started or opened any glu projects
-                yet, choose a template!
-              </p>
-            </main>
-            ${Footer}
+  const Templates = () => html`
+    <div
+      className=${css`
+        display: flex;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.138);
+        padding: 1rem;
+        border-radius: 1rem;
+        img {
+          width: 1.38rem;
+          margin-left: 0.62rem;
+          &:hover {
+            transform: scale(1.2);
+          }
+        }
+      `}
+    >
+      <h5>Quickstart Templates:</h5>
+      ${templates.map(
+        x =>
+          html`
+            <img onClick=${() => launch(x)} src="/icons/${x}.png" />
           `
-        : html`
-            <nav className=${style.nav} key="nav">
-              <div className=${style.navItems}>
-                <${Search} />
-                <${Tooltip}
-                  show=${!hasSearched && Object.keys(projects).length < 2}
-                />
-              </div>
-            </nav>
-            <main className=${style.main} key="main">
-              <div
-                className=${css`
-                  display: flex;
-                  align-items: center;
-                  background: rgba(0, 0, 0, 0.138);
-                  padding: 1rem;
-                  border-radius: 1rem;
-                  img {
-                    width: 1.38rem;
-                    margin-left: 0.62rem;
-                    &:hover {
-                      transform: scale(1.2);
-                    }
-                  }
-                `}
-              >
-                <h5>Quickstart Templates:</h5>
-                ${templates.map(
-                  x =>
-                    html`
-                      <img onClick=${() => launch(x)} src="/icons/${x}.png" />
-                    `
-                )}
-              </div>
-              <div>
-                <ul className=${style.projects}>
-                  ${Object.entries(projects)
-                    .filter(([k]) => k.match(searchTerm))
-                    .sort(([, a], [, b]) => (a.mtime > b.mtime ? -1 : 0))
-                    .map(
-                      ([k, v]) =>
-                        html`
-                          <${Project} key=${k} id=${k} meta=${v} />
-                        `
-                    )}
-                </ul>
-              </div>
-            </main>
-            ${Footer}
-          `
-      : null}
+      )}
+    </div>
   `;
+
+  const Projects = () => html`
+    ${Object.keys(projects).length === 0
+      ? html`
+          <main className=${style.welcome} key="main">
+            <h1>Quickstart Templates</h1>
+            <ul className=${style.templates}>
+              ${templates.map(
+                x =>
+                  html`
+                    <${Template} key=${x} template=${x} launch=${launch} />
+                  `
+              )}
+            </ul>
+            <p>
+              It looks like you haven't started or opened any glu projects yet,
+              choose a template!
+            </p>
+          </main>
+          ${Footer}
+        `
+      : html`
+          <nav className=${style.nav} key="nav">
+            <div className=${style.navItems}>
+              <${Search} />
+              <${Tooltip}
+                show=${!hasSearched && Object.keys(projects).length < 2}
+              />
+            </div>
+          </nav>
+          <main className=${style.main} key="main">
+            <${Templates} />
+            <div>
+              <ul className=${style.projects}>
+                ${Object.entries(projects)
+                  .filter(([k]) => k.match(searchTerm))
+                  .sort(([, a], [, b]) => (a.mtime > b.mtime ? -1 : 0))
+                  .map(
+                    ([k, v]) =>
+                      html`
+                        <${Project} key=${k} id=${k} meta=${v} />
+                      `
+                  )}
+              </ul>
+            </div>
+          </main>
+          ${Footer}
+        `}
+  `;
+
+  return user
+    ? projects
+      ? html`
+          <${Projects} />
+        `
+      : null
+    : html`
+        <${LoadingBar} loading=${{ indeterminate: true }} active=${true} />
+      `;
 }
 
 const style = {

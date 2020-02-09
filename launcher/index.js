@@ -11,6 +11,12 @@ const getGithubAccessTokenCookie = () =>
     .split(';')
     .shift();
 
+const setGithubAccessTokenCookie = val => {
+  const now = new Date();
+  now.setFullYear(now.getFullYear() + 1);
+  document.cookie = `github_access_token=${val};expires=${now.toGMTString()};path=/`;
+};
+
 const initialState = {
   githubAccessToken: getGithubAccessTokenCookie(),
   projects: null,
@@ -37,6 +43,11 @@ function reducer(state, action) {
 const Main = () => {
   const [state] = useStateValue();
   const { githubAccessToken } = state;
+
+  React.useEffect(() => {
+    setGithubAccessTokenCookie(githubAccessToken);
+  }, [githubAccessToken]);
+
   return html`
     ${!githubAccessToken
       ? html`

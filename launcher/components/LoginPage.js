@@ -3,12 +3,6 @@ import { useStateValue } from '../utils/globalState.js';
 
 import LoadingBar from './LoadingBar.js';
 
-const setGithubAccessTokenCookie = val => {
-  const now = new Date();
-  now.setFullYear(now.getFullYear() + 1);
-  document.cookie = `github_access_token=${val};expires=${now.toGMTString()};path=/`;
-};
-
 const LoginPage = ({ setGithubAccessToken }) => {
   const [state, dispatch] = useStateValue();
   const { githubAccessToken } = state;
@@ -24,7 +18,6 @@ const LoginPage = ({ setGithubAccessToken }) => {
       .then(res => res.json())
       .then(({ access_token }) => {
         if (access_token) {
-          setGithubAccessTokenCookie(access_token);
           setLoading(false);
           dispatch({ type: 'setGithubAccessToken', payload: access_token });
         }
