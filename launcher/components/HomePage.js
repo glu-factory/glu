@@ -60,15 +60,15 @@ function HomePage() {
     });
   };
 
-  const Footer = html`
+  const Footer = () => html`
     <footer className=${style.footer} key="footer">
-      <span>${cwd.replace(window.$HOME, '~')}</span>
+      <span>${`${user.name} (${user.login})`}</span>
     </footer>
   `;
 
   const TemplatesToolbar = () => html`
     <div className=${style.templatesToolbar}>
-      <h5>Quickstart Templates:</h5>
+      <h5>Quickstart Templates</h5>
       ${templates.map(
         x =>
           html`
@@ -104,7 +104,7 @@ function HomePage() {
                     yet, choose a template!
                   </p>
                 </main>
-                ${Footer}
+                <${Footer} />
               `
             : html`
                 <nav className=${style.nav} key="nav">
@@ -119,7 +119,7 @@ function HomePage() {
                     <${Projects} />
                   </div>
                 </main>
-                ${Footer}
+                <${Footer} />
               `}
         `
       : null
@@ -228,7 +228,7 @@ const style = {
   main: css`
     padding: 1.38rem;
     > * + * {
-      margin-top: 2rem;
+      margin-top: 1rem;
     }
     h5 {
       color: rgba(255, 255, 255, 0.3);
@@ -246,9 +246,12 @@ const style = {
     background: #333;
     color: rgba(0, 0, 0, 0.5);
     padding: 0.62rem;
-    font-family: monospace;
-    font-weight: bold;
-    font-size: 1.2rem;
+
+    span {
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 1rem;
+    }
   `
 };
 

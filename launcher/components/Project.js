@@ -26,7 +26,6 @@ const Project = ({ id, meta }) =>
               d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h4v-2H5V8h14v10h-4v2h4c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm-7 6l-4 4h3v6h2v-6h3l-4-4z"
             />
           </svg>
-          <span>Browse</span>
         </button>
         <button onClick=${() => glu(`code "${meta.path}"`)(console.log)}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -35,7 +34,6 @@ const Project = ({ id, meta }) =>
               d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"
             />
           </svg>
-          <span>Develop</span>
         </button>
         <button
           onClick=${() =>
@@ -48,7 +46,6 @@ const Project = ({ id, meta }) =>
             />
             <path d="M0 0h24v24H0V0z" fill="none" />
           </svg>
-          <span>Remove</span>
         </button>
       </aside>
     </li>
@@ -72,6 +69,7 @@ const style = {
 
     > button {
       flex: 1 1 100%;
+      overflow: hidden;
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -102,6 +100,8 @@ const style = {
         margin-left: 1rem;
 
         h3 {
+          max-width: 100%;
+          text-align: left;
           font-size: 1.17rem;
           line-height: 1.3rem;
           white-space: nowrap;
@@ -109,6 +109,8 @@ const style = {
           overflow: hidden;
         }
         small {
+          max-width: 100%;
+          text-align: left;
           font-size: 0.83rem;
           padding-top: 0.38rem;
           opacity: 0.62;
@@ -131,8 +133,6 @@ const style = {
         border: 0;
         background: rgba(0, 0, 0, 0.3);
         color: #fff;
-        text-transform: uppercase;
-        font-size: 0.5rem;
         opacity: 0.38;
 
         &:hover {
