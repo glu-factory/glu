@@ -65,8 +65,6 @@ function HomePage() {
     </footer>
   `;
 
-  console.log(searchTerm);
-
   return html`
     ${projects
       ? Object.keys(projects).length === 0
