@@ -92,18 +92,18 @@ const style = {
     }
   `,
   projects: css`
-    padding: 1.38rem 0;
+    padding: 0 1rem 2.62rem;
   `,
   main: css`
-    padding: 2rem;
+    padding: 1.38rem;
     > * + * {
       margin-top: 2rem;
     }
     h5 {
-      padding-bottom: 1.38rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       color: rgba(255, 255, 255, 0.3);
       font-size: 1rem;
+      margin-right: auto;
     }
   `,
   footer: css`
@@ -159,7 +159,9 @@ const App = () => {
     })
       .then(res => res.json())
       .then(async ({ login }) => {
-        const name = prompt('Name this project..');
+        const name =
+          prompt('Name this project..') ||
+          `project-` + ((Math.random() * 99999) << 0).toString(16);
         const dest = `${window.glu.APPDATA}/${login}@${name}`;
         await glu(`mkdir "${dest}"`)(console.log);
         await glu(`cp -r ${__dirname}/templates/${template}/. "${dest}/"`)(
@@ -239,28 +241,38 @@ const App = () => {
                   </div>
                 </nav>
                 <main className=${style.main} key="main">
-                  <div>
-                    <h5>Quickstart Templates</h5>
-                    <ul className=${style.templates}>
-                      ${templates
-                        .filter(x => x.match(search))
-                        .map(
-                          x =>
-                            html`
-                              <${Template}
-                                key=${x}
-                                template=${x}
-                                launch=${launch}
-                              />
-                            `
-                        )}
-                    </ul>
+                  <div
+                    className=${css`
+                      display: flex;
+                      align-items: center;
+                      background: rgba(0, 0, 0, 0.138);
+                      padding: 1rem;
+                      border-radius: 1rem;
+                      img {
+                        width: 1.38rem;
+                        margin-left: 0.62rem;
+                        &:hover {
+                          transform: scale(1.2);
+                        }
+                      }
+                    `}
+                  >
+                    <h5>Quickstart Templates:</h5>
+                    ${templates.map(
+                      x =>
+                        html`
+                          <img
+                            onClick=${() => launch(x)}
+                            src="/icons/${x}.png"
+                          />
+                        `
+                    )}
                   </div>
                   <div>
-                    <h5>Recent Projects</h5>
                     <ul className=${style.projects}>
                       ${Object.entries(projects)
-                        .filter(([k, v]) => k.match(search))
+                        .filter(([k]) => k.match(search))
+                        .sort(([, a], [, b]) => (a.mtime > b.mtime ? -1 : 0))
                         .map(
                           ([k, v]) =>
                             html`

@@ -38,7 +38,8 @@ function get() {
                 .slice(1)
                 .join('@'),
               user: dir.split('@')[0],
-              path: path.join(APPDATA, dir)
+              path: path.join(APPDATA, dir),
+              mtime: +new Date(fs.statSync(path.join(APPDATA, dir)).mtime)
             }
           }),
           {}
