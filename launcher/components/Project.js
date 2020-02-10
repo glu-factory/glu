@@ -12,6 +12,7 @@ const Project = ({ id, meta, order }) => {
       ]
         .filter(Boolean)
         .join(' ')}
+      key=${id}
     >
       <button
         onClick=${e => {
@@ -29,7 +30,11 @@ const Project = ({ id, meta, order }) => {
         </div>
       </button>
       <aside>
-        ${meta.mtime
+        ${state.cloning === meta.repo
+          ? html`
+              <button>CLONING</button>
+            `
+          : meta.mtime
           ? html`
               <button onClick=${() => glu(`open "${meta.path}"`)(console.log)}>
                 <svg
@@ -65,10 +70,6 @@ const Project = ({ id, meta, order }) => {
                 </svg>
               </button>
             `
-          : state.cloning === meta.repo
-          ? html`
-              <button>CLONING</button>
-            `
           : html`
               <button
                 onClick=${() => {
@@ -77,11 +78,13 @@ const Project = ({ id, meta, order }) => {
                     `git clone https://github.com/${meta.repo} "${
                       glu.APPDATA
                     }/${meta.repo.replace('/', '@')}"`
-                  )()
-                    .then(() => dispatch({ type: 'setCloning', payload: null }))
-                    .catch(() =>
-                      dispatch({ type: 'setCloning', payload: null })
-                    );
+                  )(console.log)
+                    .then(() => {
+                      dispatch({ type: 'setCloning', payload: null });
+                    })
+                    .catch(() => {
+                      dispatch({ type: 'setCloning', payload: null });
+                    });
                 }}
               >
                 CLONE

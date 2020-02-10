@@ -33,7 +33,7 @@ function get() {
           (apps, dir) => ({
             ...apps,
             [dir]: {
-              repo: dir.replace('@', ''),
+              repo: dir.replace('@', '/'),
               name: dir
                 .split('@')
                 .slice(1)
