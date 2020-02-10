@@ -10,6 +10,7 @@ function Projects() {
   return html`
     <ul className=${style.projects}>
       ${clonable &&
+        !projects[searchTerm.replace('/', '@')] &&
         html`
           <${Project}
             key=${searchTerm}
@@ -23,12 +24,22 @@ function Projects() {
           />
         `}
       ${Object.entries(projects)
-        .filter(([k]) => k.match(searchTerm))
+        // .filter(([k]) => k.match(searchTerm))
         .sort(([, a], [, b]) => (a.mtime > b.mtime ? -1 : 0))
         .map(
           ([k, v]) =>
             html`
-              <${Project} key=${k} id=${k} meta=${v} />
+              <${Project}
+                order=${searchTerm !== '' &&
+                  (k
+                    .toLowerCase()
+                    .match(searchTerm.replace('/', '@').toLowerCase())
+                    ? 0
+                    : 1)}
+                key=${k}
+                id=${k}
+                meta=${v}
+              />
             `
         )}
     </ul>
@@ -37,6 +48,8 @@ function Projects() {
 
 const style = {
   projects: css`
+    display: flex;
+    flex-direction: column;
     padding: 0 0.62rem 2.62rem;
   `
 };

@@ -82,7 +82,7 @@ const Search = () => {
 
   React.useEffect(() => {
     dispatch({ type: 'fetching' });
-    searchTerm === '' &&
+    (searchTerm === '' || !searchTerm.split('/')[1]) &&
       globalDispatch({ type: 'setClonable', payload: false });
     debouncedGithubFetch(searchTerm);
   }, [searchTerm]);
@@ -126,10 +126,7 @@ const Search = () => {
     <form
       key="form"
       className=${style.form}
-      onSubmit=${async e => {
-        e.preventDefault();
-        state.clonable && cloneProject(searchTerm);
-      }}
+      onSubmit=${e => e.preventDefault()}
     >
       <input
         onChange=${e =>
@@ -151,8 +148,8 @@ const Search = () => {
           <path d="M0 0h24v24H0z" fill="none" />
         </svg>
       </label>
-      <${Tooltip} show=${!hasSearched && Object.keys(projects).length < 2} />
     </form>
+    <${Tooltip} show=${!hasSearched && Object.keys(projects).length < 2} />
   `;
 };
 

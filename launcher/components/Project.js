@@ -1,10 +1,17 @@
 import { React, css, html } from '../utils/webModules.js';
 import { useStateValue } from '../utils/globalState.js';
 
-const Project = ({ id, meta, clone }) => {
+const Project = ({ id, meta, order }) => {
   const [state, dispatch] = useStateValue();
   return html`
-    <li className=${style.project}>
+    <li
+      className=${[
+        style.project,
+        order === 0 ? style.match : order === 1 ? style.nomatch : false
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       <button
         onClick=${e => {
           e.preventDefault();
@@ -60,12 +67,7 @@ const Project = ({ id, meta, clone }) => {
           : html`
               <button
                 onClick=${() => {
-                  glu(`glu ${meta.repo}`)(output => {
-                    if (output.match('Cloning into')) {
-                      dispatch({ type: 'setClonable', payload: false });
-                      dispatch({ type: 'setSearchTerm', payload: '' });
-                    }
-                  });
+                  glu(`glu ${meta.repo}`)();
                 }}
               >
                 CLONE
@@ -172,6 +174,14 @@ const style = {
         }
       }
     }
+  `,
+  match: css`
+    opacity: 0.8;
+    order: 0;
+  `,
+  nomatch: css`
+    order: 1;
+    opacity: 0.2;
   `
 };
 
