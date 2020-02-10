@@ -244,7 +244,7 @@ const style = {
   main: css`
     padding: 1.38rem;
     > * + * {
-      margin-top: 1rem;
+      margin-top: 0.38rem;
     }
     h5 {
       color: rgba(255, 255, 255, 0.3);

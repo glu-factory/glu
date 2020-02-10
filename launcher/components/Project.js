@@ -20,7 +20,17 @@ const Project = ({ id, meta }) =>
       </button>
       <aside>
         <button onClick=${() => glu(`open "${meta.path}"`)(console.log)}>
-          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+          >
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path
+              d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"
+            />
+          </svg>
         </button>
         <button onClick=${() => glu(`code "${meta.path}"`)(console.log)}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -75,14 +85,13 @@ const style = {
       img {
         width: 3.2rem;
         height: 3.2rem;
-        border-radius: 1rem;
+        border-radius: 16%;
         flex: none;
         opacity: 0.8;
         transition: opacity 0.3s;
       }
       &:hover img {
         opacity: 1;
-        transform: scale(1.1);
       }
 
       div {
@@ -96,10 +105,11 @@ const style = {
           max-width: 100%;
           text-align: left;
           font-size: 1rem;
-          line-height: 150%;
+          line-height: 100%;
           white-space: nowrap;
           text-overflow: ellipsis;
           overflow: hidden;
+          font-weight: bold;
         }
         small {
           max-width: 100%;

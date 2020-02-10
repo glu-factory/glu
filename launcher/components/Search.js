@@ -115,7 +115,7 @@ const Search = () => {
     const projectName = url.split('/')[1];
     updateProgressBar([40, 75]);
     await glu(`glu ${url}`)(output => {
-      if (output.match(`Cloning into 'lukejacksonn@perflink'...`)) {
+      if (output.match(`Cloning into`)) {
         updateProgressBar([100, 0]);
         globalDispatch({ type: 'setSearchTerm', payload: '' });
       }

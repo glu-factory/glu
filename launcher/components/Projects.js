@@ -25,7 +25,7 @@ function Projects() {
 
 const style = {
   projects: css`
-    padding: 0 1rem 2.62rem;
+    padding: 0 0.62rem 2.62rem;
   `
 };
 
