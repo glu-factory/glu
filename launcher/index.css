@@ -35,3 +35,11 @@ main {
 body::-webkit-scrollbar {
   width: 0;
 }
+
+button {
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

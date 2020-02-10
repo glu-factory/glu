@@ -2,6 +2,7 @@ import { React, css, html } from '../utils/webModules.js';
 import { useStateValue } from '../utils/globalState.js';
 
 import LoadingBar from './LoadingBar.js';
+import Tooltip from './Tooltip.js';
 
 function debounce(callback, time) {
   let interval;
@@ -55,7 +56,7 @@ const reducer = (state, action) => {
 
 const Search = () => {
   const [globalState, globalDispatch] = useStateValue();
-  const { searchTerm } = globalState;
+  const { searchTerm, hasSearched, projects } = globalState;
 
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
@@ -70,9 +71,10 @@ const Search = () => {
       isValidGithubUrl
         ? fetch(`https://raw.githubusercontent.com/${input}/master/index.html`)
             .then(async res => ({ status: res.status, text: await res.text() }))
-            .then(({ status, text }) =>
-              dispatch({ type: 'clonable', payload: status === 200 })
-            )
+            .then(({ status, text }) => {
+              globalDispatch({ type: 'setClonable', payload: status === 200 });
+              dispatch({ type: 'clonable', payload: status === 200 });
+            })
         : dispatch({ type: 'clonable', payload: false });
     }, 400),
     []
@@ -80,6 +82,8 @@ const Search = () => {
 
   React.useEffect(() => {
     dispatch({ type: 'fetching' });
+    (searchTerm === '' || !searchTerm.split('/')[1]) &&
+      globalDispatch({ type: 'setClonable', payload: false });
     debouncedGithubFetch(searchTerm);
   }, [searchTerm]);
 
@@ -110,25 +114,6 @@ const Search = () => {
     }
   };
 
-  const cloneProject = async url => {
-    const projectName = url.split('/')[1];
-    updateProgressBar([40, 75]);
-    await glu(`glu ${url}`)()
-      .then(
-        () => (
-          updateProgressBar([100, 0]),
-          globalDispatch({ type: 'setSearchTerm', payload: '' })
-        )
-      )
-      .catch(
-        err => (
-          updateProgressBar([0]),
-          globalDispatch({ type: 'setSearchTerm', payload: '' }),
-          console.error('err', err)
-        )
-      );
-  };
-
   return html`
     <${LoadingBar}
       loading=${{
@@ -141,10 +126,7 @@ const Search = () => {
     <form
       key="form"
       className=${style.form}
-      onSubmit=${async e => {
-        e.preventDefault();
-        state.clonable && cloneProject(value);
-      }}
+      onSubmit=${e => e.preventDefault()}
     >
       <input
         onChange=${e =>
@@ -155,27 +137,9 @@ const Search = () => {
       />
       <label className=${style.label}>
         <svg
-          viewBox="0 0 18 18"
-          fill="none"
-          className=${`${style.svg} ${style.downloadIcon} ${state.cloning &&
-            'cloning'} ${state.clonable && 'active'}`}
-        >
-          <path
-            d="M9 13.5L14 8.5L12.5 7.09L10 9.66992V0H8V9.67L5.41 7.09L4 8.5L9 13.5Z"
-            fill="currentColor"
-          />
-          <path
-            d="M16 9V16H2V9H0V16.7778C0 18 0.9 19 2 19H16C17.1 19 18 18 18 16.7778V9H16Z"
-            fill="currentColor"
-          />
-        </svg>
-        <input type="submit" value="" />
-
-        <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          className=${`${style.svg} ${style.searchIcon} ${state.fetching &&
-            'fetching'} ${!state.clonable && 'active'}`}
+          className=${`${style.svg} ${style.searchIcon} active`}
         >
           <path
             fill="currentColor"
@@ -185,6 +149,7 @@ const Search = () => {
         </svg>
       </label>
     </form>
+    <${Tooltip} show=${!hasSearched && Object.keys(projects).length < 2} />
   `;
 };
 
@@ -193,11 +158,10 @@ const style = {
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 0 1.38rem 0 0;
+    padding: 0 0.69rem 0 0;
 
     position: relative;
     flex: 1 1 100%;
-    background: rgba(0, 0, 0, 0.1);
   `,
   label: css`
     position: relative;

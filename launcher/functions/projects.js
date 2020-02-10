@@ -33,10 +33,11 @@ function get() {
           (apps, dir) => ({
             ...apps,
             [dir]: {
+              repo: dir.replace('@', '/'),
               name: dir
                 .split('@')
                 .slice(1)
-                .join('@'),
+                .join(''),
               user: dir.split('@')[0],
               path: path.join(APPDATA, dir),
               mtime: +new Date(fs.statSync(path.join(APPDATA, dir)).mtime)

@@ -19,22 +19,31 @@ const setGithubAccessTokenCookie = val => {
 
 const initialState = {
   githubAccessToken: getGithubAccessTokenCookie(),
+  user: null,
   projects: null,
   templates: null,
   hasSearched: false,
-  searchTerm: ''
+  searchTerm: '',
+  clonable: false,
+  cloning: null
 };
 
 function reducer(state, action) {
   switch (action.type) {
     case 'setGithubAccessToken':
       return { ...state, githubAccessToken: action.payload };
+    case 'setUser':
+      return { ...state, user: action.payload };
     case 'setProjects':
       return { ...state, projects: action.payload };
     case 'setTemplates':
       return { ...state, templates: action.payload };
     case 'setSearchTerm':
       return { ...state, hasSearched: true, searchTerm: action.payload };
+    case 'setClonable':
+      return { ...state, clonable: action.payload };
+    case 'setCloning':
+      return { ...state, cloning: action.payload };
     default:
       return { ...state };
   }
