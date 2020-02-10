@@ -3,6 +3,7 @@ import { useStateValue } from '../utils/globalState.js';
 
 const Project = ({ id, meta, order }) => {
   const [state, dispatch] = useStateValue();
+  const { cloning } = state;
   return html`
     <li
       className=${[
@@ -64,10 +65,23 @@ const Project = ({ id, meta, order }) => {
                 </svg>
               </button>
             `
+          : state.cloning === meta.repo
+          ? html`
+              <button>CLONING</button>
+            `
           : html`
               <button
                 onClick=${() => {
-                  glu(`glu ${meta.repo}`)();
+                  dispatch({ type: 'setCloning', payload: meta.repo });
+                  glu(
+                    `git clone https://github.com/${meta.repo} "${
+                      glu.APPDATA
+                    }/${meta.repo.replace('/', '@')}"`
+                  )()
+                    .then(() => dispatch({ type: 'setCloning', payload: null }))
+                    .catch(() =>
+                      dispatch({ type: 'setCloning', payload: null })
+                    );
                 }}
               >
                 CLONE

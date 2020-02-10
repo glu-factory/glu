@@ -24,7 +24,8 @@ const initialState = {
   templates: null,
   hasSearched: false,
   searchTerm: '',
-  clonable: false
+  clonable: false,
+  cloning: null
 };
 
 function reducer(state, action) {
@@ -41,6 +42,8 @@ function reducer(state, action) {
       return { ...state, hasSearched: true, searchTerm: action.payload };
     case 'setClonable':
       return { ...state, clonable: action.payload };
+    case 'setCloning':
+      return { ...state, cloning: action.payload };
     default:
       return { ...state };
   }
