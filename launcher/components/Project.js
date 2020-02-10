@@ -1,7 +1,9 @@
 import { React, css, html } from '../utils/webModules.js';
+import { useStateValue } from '../utils/globalState.js';
 
-const Project = ({ id, meta }) =>
-  html`
+const Project = ({ id, meta, clone }) => {
+  const [state, dispatch] = useStateValue();
+  return html`
     <li className=${style.project}>
       <button
         onClick=${e => {
@@ -19,42 +21,60 @@ const Project = ({ id, meta }) =>
         </div>
       </button>
       <aside>
-        <button onClick=${() => glu(`open "${meta.path}"`)(console.log)}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <path d="M0 0h24v24H0z" fill="none" />
-            <path
-              d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"
-            />
-          </svg>
-        </button>
-        <button onClick=${() => glu(`code "${meta.path}"`)(console.log)}>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path
-              d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"
-            />
-          </svg>
-        </button>
-        <button
-          onClick=${() =>
-            confirm(`Are you sure you want to remove ${meta.name}?`) &&
-            glu(`rm -rf "${meta.path}"`)(console.log)}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-              d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4z"
-            />
-            <path d="M0 0h24v24H0V0z" fill="none" />
-          </svg>
-        </button>
+        ${meta.mtime
+          ? html`
+              <button onClick=${() => glu(`open "${meta.path}"`)(console.log)}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  width="24"
+                >
+                  <path d="M0 0h24v24H0z" fill="none" />
+                  <path
+                    d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"
+                  />
+                </svg>
+              </button>
+              <button onClick=${() => glu(`code "${meta.path}"`)(console.log)}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path d="M0 0h24v24H0V0z" fill="none" />
+                  <path
+                    d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"
+                  />
+                </svg>
+              </button>
+              <button
+                onClick=${() =>
+                  confirm(`Are you sure you want to remove ${meta.name}?`) &&
+                  glu(`rm -rf "${meta.path}"`)(console.log)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path
+                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4z"
+                  />
+                  <path d="M0 0h24v24H0V0z" fill="none" />
+                </svg>
+              </button>
+            `
+          : html`
+              <button
+                onClick=${() => {
+                  glu(`glu ${meta.repo}`)(output => {
+                    if (output.match('Cloning into')) {
+                      dispatch({ type: 'setClonable', payload: false });
+                      dispatch({ type: 'setSearchTerm', payload: '' });
+                    }
+                  });
+                }}
+              >
+                CLONE
+              </button>
+            `}
       </aside>
     </li>
   `;
+};
 
 const style = {
   project: css`

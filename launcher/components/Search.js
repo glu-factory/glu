@@ -71,9 +71,10 @@ const Search = () => {
       isValidGithubUrl
         ? fetch(`https://raw.githubusercontent.com/${input}/master/index.html`)
             .then(async res => ({ status: res.status, text: await res.text() }))
-            .then(({ status, text }) =>
-              dispatch({ type: 'clonable', payload: status === 200 })
-            )
+            .then(({ status, text }) => {
+              globalDispatch({ type: 'setClonable', payload: status === 200 });
+              dispatch({ type: 'clonable', payload: status === 200 });
+            })
         : dispatch({ type: 'clonable', payload: false });
     }, 400),
     []
@@ -81,6 +82,8 @@ const Search = () => {
 
   React.useEffect(() => {
     dispatch({ type: 'fetching' });
+    searchTerm === '' &&
+      globalDispatch({ type: 'setClonable', payload: false });
     debouncedGithubFetch(searchTerm);
   }, [searchTerm]);
 
@@ -111,25 +114,6 @@ const Search = () => {
     }
   };
 
-  const cloneProject = async url => {
-    const projectName = url.split('/')[1];
-    updateProgressBar([40, 75]);
-    await glu(`glu ${url}`)(output => {
-      if (output.match(`Cloning into`)) {
-        updateProgressBar([100, 0]);
-        globalDispatch({ type: 'setSearchTerm', payload: '' });
-      }
-    })
-      .then(() => {})
-      .catch(
-        err => (
-          updateProgressBar([0]),
-          globalDispatch({ type: 'setSearchTerm', payload: '' }),
-          console.error('err', err)
-        )
-      );
-  };
-
   return html`
     <${LoadingBar}
       loading=${{
@@ -156,27 +140,9 @@ const Search = () => {
       />
       <label className=${style.label}>
         <svg
-          viewBox="0 0 18 18"
-          fill="none"
-          className=${`${style.svg} ${style.downloadIcon} ${state.cloning &&
-            'cloning'} ${state.clonable && 'active'}`}
-        >
-          <path
-            d="M9 13.5L14 8.5L12.5 7.09L10 9.66992V0H8V9.67L5.41 7.09L4 8.5L9 13.5Z"
-            fill="currentColor"
-          />
-          <path
-            d="M16 9V16H2V9H0V16.7778C0 18 0.9 19 2 19H16C17.1 19 18 18 18 16.7778V9H16Z"
-            fill="currentColor"
-          />
-        </svg>
-        <input type="submit" value="" />
-
-        <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
-          className=${`${style.svg} ${style.searchIcon} ${state.fetching &&
-            'fetching'} ${!state.clonable && 'active'}`}
+          className=${`${style.svg} ${style.searchIcon} active`}
         >
           <path
             fill="currentColor"

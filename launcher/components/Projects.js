@@ -5,11 +5,23 @@ import Project from './Project.js';
 
 function Projects() {
   const [state, dispatch] = useStateValue();
-
-  const { searchTerm, projects } = state;
+  const { searchTerm, projects, clonable } = state;
 
   return html`
     <ul className=${style.projects}>
+      ${clonable &&
+        html`
+          <${Project}
+            key=${searchTerm}
+            id=${searchTerm}
+            meta=${{
+              name: searchTerm.split('/')[1],
+              user: searchTerm.split('/')[0],
+              repo: searchTerm
+            }}
+            }
+          />
+        `}
       ${Object.entries(projects)
         .filter(([k]) => k.match(searchTerm))
         .sort(([, a], [, b]) => (a.mtime > b.mtime ? -1 : 0))
