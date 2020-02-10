@@ -13,6 +13,19 @@ function HomePage() {
   const { projects, templates, githubAccessToken, user } = state;
 
   React.useEffect(() => {
+    fetch(
+      'https://raw.githubusercontent.com/glu-factory/launcher/master/featured-projects.txt'
+    )
+      .then(data => data.text())
+      .then(text =>
+        dispatch({
+          type: 'setFeaturedProjects',
+          payload: text.split('\n').map(project => project.split('/'))
+        })
+      );
+  }, []);
+
+  React.useEffect(() => {
     fetch('https://api.github.com/user', {
       headers: {
         Authorization: `token ${githubAccessToken}`,
