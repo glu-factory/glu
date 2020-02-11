@@ -1,14 +1,24 @@
+import { React, html, css } from '../utils/webModules.js';
 import { useStateValue } from '../utils/globalState.js';
-import { html, css } from '../utils/webModules.js';
 
 import Project from './Project.js';
 
 function Projects() {
   const [state, dispatch] = useStateValue();
-  const { searchTerm, projects, clonable } = state;
+  const { searchTerm, projects, clonable, featuredProject } = state;
 
   return html`
     <ul className=${style.projects}>
+      ${featuredProject &&
+        html`
+          <${Project}
+            meta=${{
+              name: featuredProject.split('/')[1],
+              user: featuredProject.split('/')[0],
+              repo: featuredProject
+            }}
+          />
+        `}
       ${clonable &&
         !projects[searchTerm.replace('/', '@')] &&
         html`
@@ -24,7 +34,6 @@ function Projects() {
           />
         `}
       ${Object.entries(projects)
-        // .filter(([k]) => k.match(searchTerm))
         .sort(([, a], [, b]) => (a.mtime > b.mtime ? -1 : 0))
         .map(
           ([k, v]) =>
@@ -50,7 +59,8 @@ const style = {
   projects: css`
     display: flex;
     flex-direction: column;
-    padding: 0 0.62rem 2.62rem;
+    margin-top: -0.62rem;
+    padding: 0 0.38rem 3.2rem;
   `
 };
 

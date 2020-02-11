@@ -21,6 +21,7 @@ const initialState = {
   githubAccessToken: getGithubAccessTokenCookie(),
   user: null,
   projects: null,
+  featuredProjects: [],
   templates: null,
   hasSearched: false,
   searchTerm: '',
@@ -34,6 +35,10 @@ function reducer(state, action) {
       return { ...state, githubAccessToken: action.payload };
     case 'setUser':
       return { ...state, user: action.payload };
+    case 'setFeaturedProjects':
+      return { ...state, featuredProjects: action.payload };
+    case 'setFeaturedProject':
+      return { ...state, featuredProject: action.payload };
     case 'setProjects':
       return { ...state, projects: action.payload };
     case 'setTemplates':

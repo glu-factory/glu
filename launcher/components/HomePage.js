@@ -10,7 +10,41 @@ import Template from './Template.js';
 function HomePage() {
   const cwd = glu.cwd();
   const [state, dispatch] = useStateValue();
-  const { projects, templates, githubAccessToken, user } = state;
+  const {
+    projects,
+    templates,
+    featuredProject,
+    featuredProjects,
+    githubAccessToken,
+    user
+  } = state;
+
+  React.useEffect(() => {
+    if (
+      projects &&
+      featuredProjects &&
+      (!featuredProject || projects[featuredProject.replace('/', '@')])
+    )
+      dispatch({
+        type: 'setFeaturedProject',
+        payload: featuredProjects
+          .sort(() => Math.random() - 0.5)
+          .find(project => !projects[project.replace('/', '@')])
+      });
+  }, [projects]);
+
+  React.useEffect(() => {
+    fetch(
+      'https://raw.githubusercontent.com/glu-factory/launcher/master/featured-projects.txt'
+    )
+      .then(data => data.text())
+      .then(text =>
+        dispatch({
+          type: 'setFeaturedProjects',
+          payload: text.split('\n')
+        })
+      );
+  }, []);
 
   React.useEffect(() => {
     fetch('https://api.github.com/user', {
@@ -244,7 +278,7 @@ const style = {
   main: css`
     padding: 1.38rem;
     > * + * {
-      margin-top: 0.38rem;
+      margin-top: 1rem;
     }
     h5 {
       color: rgba(255, 255, 255, 0.3);
