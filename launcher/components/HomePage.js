@@ -10,7 +10,28 @@ import Template from './Template.js';
 function HomePage() {
   const cwd = glu.cwd();
   const [state, dispatch] = useStateValue();
-  const { projects, templates, githubAccessToken, user } = state;
+  const {
+    projects,
+    templates,
+    featuredProject,
+    featuredProjects,
+    githubAccessToken,
+    user
+  } = state;
+
+  React.useEffect(() => {
+    if (
+      projects &&
+      featuredProjects &&
+      (!featuredProject || projects[featuredProject.replace('/', '@')])
+    )
+      dispatch({
+        type: 'setFeaturedProject',
+        payload: featuredProjects
+          .sort(() => Math.random() - 0.5)
+          .find(project => !projects[project.replace('/', '@')])
+      });
+  }, [projects]);
 
   React.useEffect(() => {
     fetch(
@@ -20,7 +41,7 @@ function HomePage() {
       .then(text =>
         dispatch({
           type: 'setFeaturedProjects',
-          payload: text.split('\n').map(project => project.split('/'))
+          payload: text.split('\n')
         })
       );
   }, []);
