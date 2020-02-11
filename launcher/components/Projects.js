@@ -87,7 +87,8 @@ const style = {
   projects: css`
     display: flex;
     flex-direction: column;
-    padding: 0 0.62rem 2.62rem;
+    margin-top: -0.62rem;
+    padding: 0 0.38rem 3.2rem;
   `
 };
 

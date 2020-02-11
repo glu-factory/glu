@@ -34,10 +34,7 @@ function get() {
             ...apps,
             [dir]: {
               repo: dir.replace('@', '/'),
-              name: dir
-                .split('@')
-                .slice(1)
-                .join(''),
+              name: dir.split('@')[1],
               user: dir.split('@')[0],
               path: path.join(APPDATA, dir),
               mtime: +new Date(fs.statSync(path.join(APPDATA, dir)).mtime)

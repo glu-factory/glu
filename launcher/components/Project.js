@@ -32,7 +32,7 @@ const Project = ({ id, meta, order }) => {
       <aside>
         ${state.cloning === meta.repo
           ? html`
-              <button>CLONING</button>
+              <button>INSTALLING</button>
             `
           : meta.mtime
           ? html`
@@ -87,7 +87,7 @@ const Project = ({ id, meta, order }) => {
                     });
                 }}
               >
-                CLONE
+                INSTALL
               </button>
             `}
       </aside>
@@ -99,13 +99,13 @@ const style = {
   project: css`
     display: flex;
     align-items: center;
-    padding: 1rem 0;
-    opacity: 0.62;
+    padding: 1rem;
+    opacity: 0.8;
     transition: opacity 0.1s;
-
-    & + & {
-      border-top: 1px solid rgba(255, 255, 255, 0.062);
-    }
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.38rem;
+    margin-top: 0.62rem;
 
     &:hover {
       opacity: 1;
@@ -122,8 +122,8 @@ const style = {
       text-decoration: none;
 
       img {
-        width: 3.2rem;
-        height: 3.2rem;
+        width: 2.8rem;
+        height: 2.8rem;
         border-radius: 16%;
         flex: none;
         opacity: 0.8;
@@ -149,11 +149,12 @@ const style = {
           text-overflow: ellipsis;
           overflow: hidden;
           font-weight: bold;
+          opacity: 0.8;
         }
         small {
           max-width: 100%;
           text-align: left;
-          font-size: 0.83rem;
+          font-size: 0.62rem;
           padding-top: 0.38rem;
           opacity: 0.62;
           white-space: nowrap;
