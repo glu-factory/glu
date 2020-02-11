@@ -103,7 +103,7 @@ const style = {
     opacity: 0.8;
     transition: opacity 0.1s;
     background: rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 0.38rem;
     margin-top: 0.62rem;
 
@@ -144,10 +144,10 @@ const style = {
           max-width: 100%;
           text-align: left;
           font-size: 1rem;
-          line-height: 100%;
+          line-height: 162%;
           white-space: nowrap;
           text-overflow: ellipsis;
-          overflow: hidden;
+          overflow-x: hidden;
           font-weight: bold;
           opacity: 0.8;
         }
@@ -155,7 +155,7 @@ const style = {
           max-width: 100%;
           text-align: left;
           font-size: 0.62rem;
-          padding-top: 0.38rem;
+          line-height: 138%;
           opacity: 0.62;
           white-space: nowrap;
           text-overflow: ellipsis;
