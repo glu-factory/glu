@@ -48,7 +48,9 @@ const APPDATA =
   // ----------------------------------
   // Template client side reload script
 
-  const glu = body => {
+  const glu = (body, callback) => {
+    let stdoutBuffer = '';
+    let stderrBuffer = '';
     const socket = new WebSocket(`ws://localhost:${__GLU_PORT__}`);
     const off = () => socket.close();
     socket.addEventListener('open', () => socket.send(body));
@@ -66,15 +68,19 @@ const APPDATA =
       while (true) yield await once();
     }
 
-    return cb =>
-      new Promise((res, rej) => {
-        socket.addEventListener('close', e =>
-          e.code === 1011 ? rej(e) : res(e)
-        );
-        (async () => {
-          for await (const response of getResponse()) cb && cb(response, off);
-        })();
-      });
+    return new Promise((res, rej) => {
+      socket.addEventListener('close', e =>
+        e.code === 1011 ? rej(stderrBuffer.trim()) : res(stdoutBuffer.trim())
+      );
+      (async () => {
+        for await (const response of getResponse()) {
+          const { stdout, stderr } = JSON.parse(response);
+          stdoutBuffer = stdoutBuffer + (stdout || '');
+          stderrBuffer = stderrBuffer + (stderr || '');
+          callback && callback([stdout, stderr], off);
+        }
+      })();
+    });
   };
 
   const clientScript = `
@@ -137,11 +143,18 @@ const APPDATA =
       );
       // Forward standard out and error to the socket
       ['stdout', 'stderr'].map(channel =>
-        proc[channel].on('data', out => socket.send(out.toString()))
+        proc[channel].on('data', out =>
+          socket.send(JSON.stringify({ [channel]: out.toString() }))
+        )
       );
       // Kill any child process if the socket is closed
       socket.on('close', () => !!proc && proc.kill('SIGINT'));
       // Close any socket if the child process is killed
+      proc.on('error', err => {
+        proc = null;
+        socket.send(JSON.stringify({ stderr: err.toString() }));
+        socket.close(1011, `${err}`);
+      });
       proc.on('close', (code, signal) => {
         proc = null;
         socket.close(code > 0 ? 1011 : 1000, `${signal}`);
