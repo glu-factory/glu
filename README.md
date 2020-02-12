@@ -1,6 +1,6 @@
 # glu
 
-> develop graphical user iunterfaces for your favourite command line tools
+> develop graphical user interfaces for your favourite command line tools
 
 Providing a generalised means of developing and distributing super lightweight user interfaces. Glu allows developers to make system level calls from the browser; making it trivial to develop a GUI for your favourite command line tools.
 
@@ -10,7 +10,7 @@ The difference between the glu approach compared to more typical approach (such 
 - No boilerplate or setup required
 - No wrappers around node modules
 
-We have avidly tried to keep dependencies of this project to a minimum (relying on only `ws`). To develop and consume glu apps however you will need to have installed; a version of Node and Google Chrome.
+We have avidly tried to keep dependencies of this project to a minimum (relying on only `ws`). To develop and consume glu apps however you will need to have installed; a version of NodeJS and Google Chrome.
 
 Currently glu is only tested on and likely to work on macOS.
 
