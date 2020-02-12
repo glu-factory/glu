@@ -64,11 +64,11 @@ function HomePage() {
   }, [githubAccessToken]);
 
   React.useEffect(() => {
-    glu(`ls ${__dirname}/templates`)(data =>
-      dispatch({ type: 'setTemplates', payload: data.trim().split('\n') })
+    glu(`ls ${__dirname}/templates`).then(data =>
+      dispatch({ type: 'setTemplates', payload: data.split('\n') })
     );
-    glu('node ./functions/projects.js')(data =>
-      dispatch({ type: 'setProjects', payload: JSON.parse(data.trim()) })
+    glu('node ./functions/projects.js', ([data]) =>
+      dispatch({ type: 'setProjects', payload: JSON.parse(data) })
     );
   }, []);
 
@@ -78,20 +78,18 @@ function HomePage() {
       prompt('Name this project..') ||
       `project-` + ((Math.random() * 99999) << 0).toString(16);
     const dest = `${window.glu.APPDATA}/${login}@${name}`;
-    await glu(`mkdir "${dest}"`)(console.log);
-    await glu(`cp -r ${__dirname}/templates/${template}/. "${dest}/"`)(
-      console.log
-    );
+    await glu(`mkdir "${dest}"`);
+    await glu(`cp -r ${__dirname}/templates/${template}/. "${dest}/"`);
   };
 
   const publish = async template => {
-    glu('git config user.name')(async user => {
-      const name = prompt('Name this project..');
-      const pass = prompt('Enter GitHub password for CURL');
-      glu(
-        `curl -u '${user.trim()}:${pass}' https://api.github.com/user/repos -d '{"name":"${name}","private":"true"}'`
-      )(console.log);
-    });
+    // glu('git config user.name')(async user => {
+    //   const name = prompt('Name this project..');
+    //   const pass = prompt('Enter GitHub password for CURL');
+    //   glu(
+    //     `curl -u '${user.trim()}:${pass}' https://api.github.com/user/repos -d '{"name":"${name}","private":"true"}'`
+    //   )(console.log);
+    // });
   };
 
   const Footer = () => html`

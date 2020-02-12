@@ -5,7 +5,7 @@ const App = {
   data: () => ({ dirname: '', nodeVersion: '' }),
   methods: {
     start() {
-      glu('code .')(console.log);
+      glu('code .');
     }
   },
   template: `

@@ -36,7 +36,7 @@ const Project = ({ id, meta, order }) => {
             `
           : meta.mtime
           ? html`
-              <button onClick=${() => glu(`open "${meta.path}"`)(console.log)}>
+              <button onClick=${() => glu(`open "${meta.path}"`)}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   height="24"
@@ -49,7 +49,7 @@ const Project = ({ id, meta, order }) => {
                   />
                 </svg>
               </button>
-              <button onClick=${() => glu(`code "${meta.path}"`)(console.log)}>
+              <button onClick=${() => glu(`code "${meta.path}"`)}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <path d="M0 0h24v24H0V0z" fill="none" />
                   <path
@@ -60,7 +60,7 @@ const Project = ({ id, meta, order }) => {
               <button
                 onClick=${() =>
                   confirm(`Are you sure you want to remove ${meta.name}?`) &&
-                  glu(`rm -rf "${meta.path}"`)(console.log)}
+                  glu(`rm -rf "${meta.path}"`)}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <path
@@ -78,13 +78,11 @@ const Project = ({ id, meta, order }) => {
                     `git clone https://github.com/${meta.repo} "${
                       glu.APPDATA
                     }/${meta.repo.replace('/', '@')}"`
-                  )(console.log)
-                    .then(() => {
-                      dispatch({ type: 'setCloning', payload: null });
-                    })
-                    .catch(() => {
-                      dispatch({ type: 'setCloning', payload: null });
-                    });
+                  )
+                    .then(() => dispatch({ type: 'setCloning', payload: null }))
+                    .catch(() =>
+                      dispatch({ type: 'setCloning', payload: null })
+                    );
                 }}
               >
                 INSTALL
