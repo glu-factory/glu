@@ -35,7 +35,7 @@ function HomePage() {
 
   React.useEffect(() => {
     fetch(
-      'https://raw.githubusercontent.com/glu-factory/launcher/master/featured-projects.txt'
+      'https://raw.githubusercontent.com/glu-factory/glu/master/featured-projects.txt'
     )
       .then(data => data.text())
       .then(text =>
