@@ -20,7 +20,7 @@ Glu applications can be installed and ran directly from a GitHub repository. Try
 
 > Please be sure you trust the developer of any application before running it!
 
-```
+```bash
 npx glu lukejacksonn/create-es-react-app
 ```
 
@@ -32,7 +32,7 @@ To demonstrate the power of glu we built a glu application to help manage glu ap
 
 To launch the launcher run the following command:
 
-```
+```bash
 npx glu
 ```
 
@@ -42,54 +42,55 @@ Currently the launcher has quite limited in features – it allows you to launch
 
 As well as a CLI and GUI, we inject an API into all applications launched via the glu command (known as the `glu` function). All and any interactions with the operating system happens through this function which is bound to `window.glu`.
 
-The function takes a single argument – a command – in the form of a string, much like a terminal:
+The function takes a single argument – a command – in the form of a string, much like a terminal. Every time the `glu` function is called, a new connection between the browser window and a native child process is created. Calling the functions returns a promise of some buffered `stdout`:
 
 ```js
-glu('ls')(console.log);
-```
-
-Every time the `glu` function is called, a connection between the browser window and a native child process is created.
-
-### glu(cmd)(callback)
-
-The provided callback is repeatedly called with any output to `stdout` until the invoked process exits.
-
-```js
-glu('node -v')(stdout => console.log(stdout));
-
+const version = await glu('node -v');
 // => v10.14.1
 ```
 
-This works for synchronous processes that output just once (like `node -v`) but also for processes that take indeterminate amount of time to execute and potentially print to `stdout` multiple times. This is convenient for process like `ping`, `traceroute` or `npm install` for example.
+This is especially convenient when working with commands that return a single value in a predictable amount of time.
+
+### glu(cmd, callback)
+
+For long running processes that might return multiple values before exiting, then provide a callback function. The callback function is called every time the child process prints to `stdout` or `stderr`. This happens until the child process exits.
 
 ```js
-glu('ping google.com')(stdout => console.log(stdout));
+glu('ping google.com', ([stdout, stderr]) => {
+  if (stderr) console.log(stderr);
+  if (stdout) console.log(stdout);
+});
 
 // => PING google.com (74.125.193.138): 56 data bytes
 // => 64 bytes from 74.125.193.138: icmp_seq=0 ttl=38 time=26.272 ms
 ```
 
-Some processes will continue indefinitely – for example `ping`. For cases like this an `off` function is passed as the second argument to the callback function. This allows the developer to manually terminate a processes at any time or conditionally based on some distinct output.
+Some child processes will continue indefinitely unless terminated manually; like the `ping` example above.
+
+For cases like this an `off` function is passed as the second argument to the callback function. This allows the developer to manually terminate a processes at any time.
 
 ```js
-glu("ping google.com")((stdout, off) => {
-  const time = stdout.match(/time=(\d+)/) || [];
-  if (+time[1]) < 15) off();
-  console.log(time[1])
-})
+let count = 0;
+glu('ping google.com', ([stdout, stderr], off) => {
+  if (count > 2) off();
+  const ping = stdout.match(/time=(\d+)/) || [];
+  console.log(ping[1]);
+  count++;
+});
 
 // => 17
 // => 15
 // => 14
 ```
 
-As well as accepting a callback function, calls to glu return a promise which resolves when the child process terminates; essentially making a single or multiple return process synchronous.
+As mentioned previously, calls to glu return a promise which resolves when the child process terminates. This means that you can either `await` the result or use `then` and `catch` which will both get passed a string containing all success or error messages (respectively) that was received by stdio during the child processes execution.
 
 ```js
-const exit = await glu('npm install')(stdout => console.log(stdout);
-exit === '0'
-  ? console.log('Install Successful')
-  : console.log('Install Failed');
+glu('npm install')
+  .then(stdout => console.log('Install Successful'))
+  .catch(stderr => console.error('Install Failed'));
+
+// => Install Successful
 ```
 
 ## Licence
