@@ -20,7 +20,7 @@ Glu applications can be installed and ran directly from a GitHub repository. Try
 
 > Please be sure you trust the developer of any application before running it!
 
-```
+```bash
 npx glu lukejacksonn/create-es-react-app
 ```
 
@@ -32,7 +32,7 @@ To demonstrate the power of glu we built a glu application to help manage glu ap
 
 To launch the launcher run the following command:
 
-```
+```bash
 npx glu
 ```
 
@@ -56,7 +56,7 @@ This is especially convenient when working with commands that return a single va
 For long running processes that might return multiple values before exiting, then provide a callback function. The callback function is called every time the child process prints to `stdout` or `stderr`. This happens until the child process exits.
 
 ```js
-glu('ping google.com')(([stdout, stderr]) => {
+glu('ping google.com', ([stdout, stderr]) => {
   if (stderr) console.log(stderr);
   if (stdout) console.log(stdout);
 });
@@ -71,10 +71,10 @@ For cases like this an `off` function is passed as the second argument to the ca
 
 ```js
 let count = 0;
-glu('ping google.com')(([stdout, stderr], off) => {
+glu('ping google.com', ([stdout, stderr], off) => {
+  if (count > 2) off();
   const ping = stdout.match(/time=(\d+)/) || [];
   console.log(ping[1]);
-  if (count > 2) off();
   count++;
 });
 
