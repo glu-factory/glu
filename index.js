@@ -10,21 +10,13 @@ const childProcess = require('child_process');
 const ws = require('ws');
 const servor = require('servor');
 
-const availablePort = () =>
-  new Promise(res => {
-    const s = net.createServer().listen(0, () => {
-      const { port } = s.address();
-      s.close(() => res(port));
-    });
-  });
-
-const APPDATA =
-  process.env.APPDATA ||
-  (process.platform == 'darwin'
-    ? process.env.HOME + '/Library/Application Support'
-    : process.env.HOME + '/.local/share') + '/glu';
-
 (async () => {
+  const APPDATA =
+    process.env.APPDATA ||
+    (process.platform == 'darwin'
+      ? process.env.HOME + '/Library/Application Support'
+      : process.env.HOME + '/.local/share') + '/glu';
+
   const app = process.argv[2];
   const root = app
     ? path.join(APPDATA, app.replace('/', '@'))
@@ -37,133 +29,93 @@ const APPDATA =
     childProcess.execSync(cmd, { cwd: APPDATA });
   }
 
-  let APPDATA_SERVER;
-  if (!app) {
-    APPDATA_SERVER = await servor({ root: APPDATA });
-  }
+  const appify = (name, port) => {
+    const chromePath =
+      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+    const resourcePath = `/Applications/${name}.app/Contents/Resources`;
+    const execPath = `/Applications/${name}.app/Contents/MacOS`;
+    const profilePath = `/Applications/${name}.app/Contents/Profile`;
+    const plistPath = `/Applications/${name}.app/Contents/Info.plist`;
 
-  const gluPort = await availablePort();
-  const closePort = await availablePort();
-
-  // ----------------------------------
-  // Template client side reload script
-
-  const glu = body => {
-    const socket = new WebSocket(`ws://localhost:${__GLU_PORT__}`);
-    const off = () => socket.close();
-    socket.addEventListener('open', () => socket.send(body));
-
-    const once = () =>
-      new Promise(resolve => {
-        let handler = ({ data }) => {
-          socket.removeEventListener('message', handler);
-          resolve(data);
-        };
-        socket.addEventListener('message', handler);
-      });
-
-    async function* getResponse() {
-      while (true) yield await once();
+    console.log('making dirs..', resourcePath);
+    const dirs = [resourcePath, execPath, profilePath];
+    for (let dir of dirs) {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
     }
 
-    return cb =>
-      new Promise((res, rej) => {
-        socket.addEventListener('close', e =>
-          e.code === 1011 ? rej(e) : res(e)
-        );
-        (async () => {
-          for await (const response of getResponse()) cb && cb(response, off);
-        })();
-      });
+    const iconPath = `${root}/templates/vanilla/logo.png`;
+    console.log('making icon..', iconPath, resourcePath);
+    childProcess.execSync(
+      `sips -s format tiff "${iconPath}" --out "${resourcePath}/icon.tiff" --resampleWidth 128 >& /dev/null`
+    );
+    childProcess.execSync(
+      `tiff2icns -noLarge "${resourcePath}/icon.tiff" >& /dev/null`
+    );
+
+    //     const executable = `#!/bin/sh
+    //       node ${__dirname}/launch.js "${root}" | (
+    //         read foo;
+    //         exec "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"  --app="http://localhost:$foo" --user-data-dir="${profilePath}" --no-first-run --no-default-browser-check "$@"
+    //       )
+    // `;
+
+    const executable = `#!/bin/sh
+          exec("usr/bin/node", "${__dirname}/launch.js '${root}'")
+    `;
+
+    console.log(root);
+    //     const executable = `#!/bin/sh
+    //     exec "node" -e "const cp = require('child_process'); cp.spawn('node', ['${__dirname}/launch.js', '${root}']);" &
+    //     exec "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --app="http://example.com" --user-data-dir="/Applications/GluLauncher.app/Contents/Profile" --no-first-run --no-default-browser-check
+    // `;
+
+    // const executable = `#!/usr/bin/env node
+    // const cp = require('child_process');
+    // setTimeout(() => {
+    //   console.log('asdf');
+    // }, 5000);
+    // cp.spawn('sudo', ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '--app="http://example.com"', '--user-data-dir="${profilePath}"', '--no-first-run', '--no-default-browser-check']);
+
+    // `;
+
+    //     const executable = `#!/bin/sh
+    // exec "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --app="http://example.com" --user-data-dir="/Applications/GluLauncher.app/Contents/Profile" --no-first-run --no-default-browser-check
+    // `;
+
+    // &
+    // exec "${chromePath}"  --app="http://localhost:${port}" --user-data-dir="${profilePath}" --no-first-run --no-default-browser-check "\$@"
+
+    console.log(__dirname);
+    console.log('making executable..');
+    fs.writeFileSync(`${execPath}/${name}`, executable);
+    childProcess.execSync(`chmod +x "${execPath}/${name}"`);
+
+    const plist = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" “http://www.apple.com/DTDs/PropertyList-1.0.dtd”>
+<plist version=”1.0″>
+<dict>
+<key>CFBundleExecutable</key>
+<string>${name}</string>
+<key>CFBundleIconFile</key>
+<string>icon</string>
+</dict>
+</plist>`;
+
+    console.log('making plist..');
+    fs.writeFileSync(plistPath, plist);
+
+    console.log('chmoding..');
+    // fs.chmodSync(`${execPath}/${name}`, 0755);
+
+    return `/Applications/${name}.app`;
   };
 
-  const clientScript = `
-    <script>
-      (() => {
-        window.DONT_KILL = false;
-        new EventSource('/livereload').onmessage = e => { DONT_KILL = true };
-        const proc = new WebSocket('ws://localhost:${closePort}');
-        proc.addEventListener('message', e => e.data === 'SIGINT' && window.close());
-        addEventListener('keydown', e => e.key === 'r' && e.metaKey && (DONT_KILL = true));
-        window.onbeforeunload = e => { !DONT_KILL && proc.send('SIGINT') };
-        const __GLU_PORT__ = ${gluPort};
-        window.glu = ${glu.toString()};
-        window.glu.cwd = () => "${process.cwd()}";
-        window.__dirname = "${root}";
-        window.$HOME = "${os.homedir()}";
-        ${
-          app
-            ? ''
-            : `
-          window.glu.APPDATA = "${APPDATA}";
-          window.glu.APPDATA_SERVER = "${APPDATA_SERVER.url}";
-        `
-        }
-      })();
-    </script>
-  `;
-
-  // ----------------------------------
-  // Setup a default process exit listener
-
-  let exit = () => process.exit();
-  process.on('SIGINT', () => exit());
-
-  // ----------------------------------
-  // Start close listening socket
-
-  new ws.Server({ port: closePort }).on('connection', socket => {
-    // Close the browser upon ctrl+c in terminal
-    exit = () => {
-      socket.send('SIGINT');
-      socket.close(1011, 'SIGINT');
-      setTimeout(process.exit, 0);
-    };
-    // Listen for window closing
-    socket.on('message', body => body === 'SIGINT' && exit());
-  });
-
-  // ----------------------------------
-  // Start command running socket
-
-  new ws.Server({ port: gluPort }).on('connection', socket => {
-    socket.on('message', body => {
-      // Extract command and arguments then run as child process
-      const [cmd, ...args] = body.match(/(?:[^\s"]+|"[^"]*")+/g);
-      let proc = childProcess.spawn(
-        cmd,
-        args.map(x => x.replace(/"/g, '')),
-        { cwd: root }
-      );
-      // Forward standard out and error to the socket
-      ['stdout', 'stderr'].map(channel =>
-        proc[channel].on('data', out => socket.send(out.toString()))
-      );
-      // Kill any child process if the socket is closed
-      socket.on('close', () => !!proc && proc.kill('SIGINT'));
-      // Close any socket if the child process is killed
-      proc.on('close', (code, signal) => {
-        proc = null;
-        socket.close(code > 0 ? 1011 : 1000, `${signal}`);
-      });
-    });
-  });
-
-  // ----------------------------------
-  // Start static file server
-
-  const { port } = await servor({
-    root,
-    browse: false,
-    reload: true,
-    silent: true,
-    inject: clientScript
-  });
-
-  // ----------------------------------
-  // Open in headless chrome
+  const appPath = appify('GluLauncher', 8080);
 
   childProcess.exec(
-    `/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --app='http://localhost:${port}'`
+    `open -a "${appPath}"`
+    // `/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --app='http://localhost:${port}'`
   );
 })();
