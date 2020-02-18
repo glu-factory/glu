@@ -4,6 +4,12 @@ import { useStateValue } from '../utils/globalState.js';
 const Project = ({ id, meta, order }) => {
   const [state, dispatch] = useStateValue();
   const { cloning } = state;
+
+  const imgPath =
+    !cloning.includes(meta.repo) && !!meta.path
+      ? `${window.glu.APPDATA_SERVER}/${id}/logo.png`
+      : `https://raw.githubusercontent.com/${meta.repo}/master/logo.png`;
+
   return html`
     <li
       className=${[
@@ -21,7 +27,8 @@ const Project = ({ id, meta, order }) => {
         }}
       >
         <img
-          src=${`${window.glu.APPDATA_SERVER}/${id}/logo.png`}
+          key=${imgPath}
+          src=${imgPath}
           onError=${e => (e.target.src = './icons/missing.png')}
         />
         <div>
@@ -30,7 +37,7 @@ const Project = ({ id, meta, order }) => {
         </div>
       </button>
       <aside>
-        ${state.cloning === meta.repo
+        ${cloning.includes(meta.repo)
           ? html`
               <button>INSTALLING</button>
             `
@@ -73,15 +80,17 @@ const Project = ({ id, meta, order }) => {
           : html`
               <button
                 onClick=${() => {
-                  dispatch({ type: 'setCloning', payload: meta.repo });
+                  dispatch({ type: 'addCloning', payload: meta.repo });
                   glu(
                     `git clone https://github.com/${meta.repo} "${
                       glu.APPDATA
                     }/${meta.repo.replace('/', '@')}"`
                   )
-                    .then(() => dispatch({ type: 'setCloning', payload: null }))
+                    .then(() =>
+                      dispatch({ type: 'removeCloning', payload: meta.repo })
+                    )
                     .catch(() =>
-                      dispatch({ type: 'setCloning', payload: null })
+                      dispatch({ type: 'removeCloning', payload: meta.repo })
                     );
                 }}
               >
