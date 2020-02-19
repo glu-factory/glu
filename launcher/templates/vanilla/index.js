@@ -1,6 +1,6 @@
 document.body.innerHTML = `
   <header>
-    <img src="./logo.png" />
+    <img src="./icon.png" />
     <button onclick="glu('code .')">
       Start Coding
     </button>
