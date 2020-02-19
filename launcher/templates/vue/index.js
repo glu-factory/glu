@@ -11,7 +11,7 @@ const App = {
   template: `
     <div>
       <header>
-        <img src="./logo.png" />
+        <img src="./icon.png" />
         <button @click="start">
           Start Coding
         </button>

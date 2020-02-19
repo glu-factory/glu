@@ -7,8 +7,8 @@ const Project = ({ id, meta, order }) => {
 
   const imgPath =
     !cloning.includes(meta.repo) && !!meta.path
-      ? `${window.glu.APPDATA_SERVER}/${id}/logo.png`
-      : `https://raw.githubusercontent.com/${meta.repo}/master/logo.png`;
+      ? `${window.glu.APPDATA_SERVER}/${id}/icon.png`
+      : `https://raw.githubusercontent.com/${meta.repo}/master/icon.png`;
 
   return html`
     <li
@@ -29,7 +29,14 @@ const Project = ({ id, meta, order }) => {
         <img
           key=${imgPath}
           src=${imgPath}
-          onError=${e => (e.target.src = './icons/missing.png')}
+          onError=${e => {
+            const src = e.target.src;
+            src.match('icon.png')
+              ? (e.target.src = src.replace('icon.png', 'logo.png'))
+              : src.match('logo.png')
+              ? (e.target.src = src.replace('logo.png', 'favicon.ico'))
+              : (e.target.src = './icons/missing.png');
+          }}
         />
         <div>
           <h3>${meta.name}</h3>

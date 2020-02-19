@@ -12,7 +12,7 @@ const App = () => {
 
   return html`
     <header>
-      <img src="./logo.png" />
+      <img src="./icon.png" />
       <button onClick=${e => glu(`code .`)}>
         Start Coding
       </button>

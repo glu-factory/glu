@@ -22,7 +22,7 @@ class App extends Component {
   render(props, state) {
     return html`
       <header>
-        <img src="./logo.png" />
+        <img src="./icon.png" />
         <button onClick=${e => glu(`code .`)}>
           Start Coding
         </button>
