@@ -82,16 +82,6 @@ function HomePage() {
     await glu(`cp -r ${__dirname}/templates/${template}/. "${dest}/"`);
   };
 
-  const publish = async template => {
-    // glu('git config user.name')(async user => {
-    //   const name = prompt('Name this project..');
-    //   const pass = prompt('Enter GitHub password for CURL');
-    //   glu(
-    //     `curl -u '${user.trim()}:${pass}' https://api.github.com/user/repos -d '{"name":"${name}","private":"true"}'`
-    //   )(console.log);
-    // });
-  };
-
   const Footer = () => html`
     <footer className=${style.footer} key="footer">
       <div>

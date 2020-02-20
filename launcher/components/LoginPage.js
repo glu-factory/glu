@@ -26,7 +26,7 @@ const LoginPage = ({ setGithubAccessToken }) => {
 
   const login = () => {
     loginWindow.current = window.open(
-      `https://github.com/login/oauth/authorize?client_id=e12fed97f41a2b4e6cf1&scope=read:user&redirect_uri=${window.location.origin}&state=glu`,
+      `https://github.com/login/oauth/authorize?client_id=75c2947e81bbde1e3882&scope=user%20repo&redirect_uri=${window.location.origin}&state=glu`,
       '_blank',
       'height=635,width=623,toolbar=0,location=0,menubar=0'
     );
