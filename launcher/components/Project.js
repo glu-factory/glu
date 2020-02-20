@@ -60,7 +60,7 @@ const Project = ({ id, meta, order }) => {
       <aside>
         ${cloning.includes(meta.repo)
           ? html`
-              <button>INSTALLING</button>
+              <span>INSTALLING</span>
             `
           : meta.mtime
           ? html`
@@ -128,6 +128,7 @@ const Project = ({ id, meta, order }) => {
               </button>
             `
           : html`
+              <span>FEATURED</span>
               <button
                 onClick=${async () => {
                   dispatch({ type: 'addCloning', payload: meta.repo });
@@ -139,7 +140,13 @@ const Project = ({ id, meta, order }) => {
                   dispatch({ type: 'removeCloning', payload: meta.repo });
                 }}
               >
-                INSTALL
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M13.9912 16.2329H15.9912L12.9912 19.2329L9.99121 16.2329H11.9912V11.2329H13.9912V16.2329ZM16.9912 8.23291C16.9912 7.79291 16.0812 5.23291 12.4912 5.23291C10.0712 5.23291 7.99121 7.15291 7.99121 9.23291C6.01121 9.23291 4.99121 10.7529 4.99121 12.2329C4.99121 13.7629 5.99121 15.2329 7.99121 15.2329H10.9912V13.9329H7.99121C6.37121 13.9329 6.29121 12.5129 6.29121 12.2329C6.29121 12.0629 6.34121 10.5329 7.99121 10.5329H9.29121V9.23291C9.29121 7.84291 10.8512 6.53291 12.4912 6.53291C15.0412 6.53291 15.6212 8.08291 15.6912 8.33291V9.53291H16.9912C17.8012 9.53291 19.6912 9.75291 19.6912 11.7329C19.6912 13.8229 17.4412 13.9329 16.9912 13.9329H14.9912V15.2329H16.9912C19.0712 15.2329 20.9912 14.0729 20.9912 11.7329C20.9912 9.29291 19.0712 8.23291 16.9912 8.23291Z"
+                  />
+                </svg>
               </button>
             `}
       </aside>
@@ -220,6 +227,18 @@ const style = {
       display: flex;
       align-items: center;
 
+      > span {
+        margin-right: 1rem;
+        background: #111;
+        padding: 0.38rem;
+        font-size: 0.62rem;
+        border-radius: 0.38rem;
+      }
+
+      button + button {
+        border-left: 1px solid #000;
+      }
+
       button {
         display: flex;
         flex-direction: column;
@@ -230,10 +249,6 @@ const style = {
         background: rgba(0, 0, 0, 0.3);
         color: #fff;
         opacity: 0.38;
-
-        &:not(:first-child) {
-          border-left: 1px solid #000;
-        }
 
         &:hover {
           opacity: 0.9;
