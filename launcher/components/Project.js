@@ -11,7 +11,7 @@ const Project = ({ id, meta, order }) => {
       headers: {
         Authorization: `token ${githubAccessToken}`
       },
-      body: JSON.stringify({ name, private: true })
+      body: JSON.stringify({ name, private: false })
     });
     const message = prompt('Add a note to this deploy (optional):');
     glu(`node functions/push.js "${path}" ${user.login} ${name} "${message}"`)
