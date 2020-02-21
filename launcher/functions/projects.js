@@ -37,7 +37,7 @@ function get() {
               `cd "${path.join(
                 APPDATA,
                 dir
-              )}" && git ls-files -o 2>/dev/null && git diff --shortstat 2>/dev/null`
+              )}" && git ls-files --others --exclude-standard 2>/dev/null && git diff --shortstat 2>/dev/null`
             )
               .toString()
               .trim();
