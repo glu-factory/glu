@@ -51,7 +51,7 @@ header > * + * {
   margin-top: 5vmin;
 }
 
-img[src='./logo.png'] {
+img[src='./icon.png'] {
   width: 50vmin;
 }
 

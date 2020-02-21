@@ -1,7 +1,7 @@
 document.body.innerHTML = `
   <header>
-    <img src="./logo.png" />
-    <button onclick="glu('code .')(console.log)">
+    <img src="./icon.png" />
+    <button onclick="glu('code .')">
       Start Coding
     </button>
   </header>
@@ -11,7 +11,7 @@ document.body.innerHTML = `
   </footer>
 `;
 
-glu('node -v')(
+glu('node -v').then(
   nodeVersion =>
     (document.querySelector('#nodeVersion').innerText = nodeVersion)
 );

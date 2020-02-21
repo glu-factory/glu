@@ -4,6 +4,12 @@ import { useStateValue } from '../utils/globalState.js';
 const Project = ({ id, meta, order }) => {
   const [state, dispatch] = useStateValue();
   const { cloning } = state;
+
+  const imgPath =
+    !cloning.includes(meta.repo) && !!meta.path
+      ? `${window.glu.APPDATA_SERVER}/${id}/icon.png`
+      : `https://raw.githubusercontent.com/${meta.repo}/master/icon.png`;
+
   return html`
     <li
       className=${[
@@ -21,8 +27,16 @@ const Project = ({ id, meta, order }) => {
         }}
       >
         <img
-          src=${`${window.glu.APPDATA_SERVER}/${id}/logo.png`}
-          onError=${e => (e.target.src = './icons/missing.png')}
+          key=${imgPath}
+          src=${imgPath}
+          onError=${e => {
+            const src = e.target.src;
+            src.match('icon.png')
+              ? (e.target.src = src.replace('icon.png', 'logo.png'))
+              : src.match('logo.png')
+              ? (e.target.src = src.replace('logo.png', 'favicon.ico'))
+              : (e.target.src = './icons/missing.png');
+          }}
         />
         <div>
           <h3>${meta.name}</h3>
@@ -30,13 +44,13 @@ const Project = ({ id, meta, order }) => {
         </div>
       </button>
       <aside>
-        ${state.cloning === meta.repo
+        ${cloning.includes(meta.repo)
           ? html`
               <button>INSTALLING</button>
             `
           : meta.mtime
           ? html`
-              <button onClick=${() => glu(`open "${meta.path}"`)(console.log)}>
+              <button onClick=${() => glu(`open "${meta.path}"`)}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   height="24"
@@ -49,7 +63,7 @@ const Project = ({ id, meta, order }) => {
                   />
                 </svg>
               </button>
-              <button onClick=${() => glu(`code "${meta.path}"`)(console.log)}>
+              <button onClick=${() => glu(`code "${meta.path}"`)}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <path d="M0 0h24v24H0V0z" fill="none" />
                   <path
@@ -60,7 +74,7 @@ const Project = ({ id, meta, order }) => {
               <button
                 onClick=${() =>
                   confirm(`Are you sure you want to remove ${meta.name}?`) &&
-                  glu(`rm -rf "${meta.path}"`)(console.log)}
+                  glu(`rm -rf "${meta.path}"`)}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <path
@@ -73,18 +87,18 @@ const Project = ({ id, meta, order }) => {
           : html`
               <button
                 onClick=${() => {
-                  dispatch({ type: 'setCloning', payload: meta.repo });
+                  dispatch({ type: 'addCloning', payload: meta.repo });
                   glu(
                     `git clone https://github.com/${meta.repo} "${
                       glu.APPDATA
                     }/${meta.repo.replace('/', '@')}"`
-                  )(console.log)
-                    .then(() => {
-                      dispatch({ type: 'setCloning', payload: null });
-                    })
-                    .catch(() => {
-                      dispatch({ type: 'setCloning', payload: null });
-                    });
+                  )
+                    .then(() =>
+                      dispatch({ type: 'removeCloning', payload: meta.repo })
+                    )
+                    .catch(() =>
+                      dispatch({ type: 'removeCloning', payload: meta.repo })
+                    );
                 }}
               >
                 INSTALL
@@ -103,7 +117,7 @@ const style = {
     opacity: 0.8;
     transition: opacity 0.1s;
     background: rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 0.38rem;
     margin-top: 0.62rem;
 
@@ -144,10 +158,10 @@ const style = {
           max-width: 100%;
           text-align: left;
           font-size: 1rem;
-          line-height: 100%;
+          line-height: 162%;
           white-space: nowrap;
           text-overflow: ellipsis;
-          overflow: hidden;
+          overflow-x: hidden;
           font-weight: bold;
           opacity: 0.8;
         }
@@ -155,7 +169,7 @@ const style = {
           max-width: 100%;
           text-align: left;
           font-size: 0.62rem;
-          padding-top: 0.38rem;
+          line-height: 138%;
           opacity: 0.62;
           white-space: nowrap;
           text-overflow: ellipsis;

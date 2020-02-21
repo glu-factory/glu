@@ -16,14 +16,14 @@ class App extends Component {
   }
 
   componentDidMount() {
-    glu('node -v')(nodeVersion => this.setState({ nodeVersion }));
+    glu('node -v').then(nodeVersion => this.setState({ nodeVersion }));
   }
 
   render(props, state) {
     return html`
       <header>
-        <img src="./logo.png" />
-        <button onClick=${e => glu(`code .`)(console.log)}>
+        <img src="./icon.png" />
+        <button onClick=${e => glu(`code .`)}>
           Start Coding
         </button>
       </header>

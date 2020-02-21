@@ -7,13 +7,13 @@ const App = () => {
   const [nodeVersion, setNodeVersion] = React.useState('');
 
   React.useEffect(() => {
-    glu('node -v')(setNodeVersion);
+    glu('node -v').then(setNodeVersion);
   }, []);
 
   return html`
     <header>
-      <img src="./logo.png" />
-      <button onClick=${e => glu(`code .`)(console.log)}>
+      <img src="./icon.png" />
+      <button onClick=${e => glu(`code .`)}>
         Start Coding
       </button>
     </header>

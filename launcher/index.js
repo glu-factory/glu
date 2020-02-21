@@ -26,7 +26,7 @@ const initialState = {
   hasSearched: false,
   searchTerm: '',
   clonable: false,
-  cloning: null
+  cloning: []
 };
 
 function reducer(state, action) {
@@ -47,8 +47,13 @@ function reducer(state, action) {
       return { ...state, hasSearched: true, searchTerm: action.payload };
     case 'setClonable':
       return { ...state, clonable: action.payload };
-    case 'setCloning':
-      return { ...state, cloning: action.payload };
+    case 'addCloning':
+      return { ...state, cloning: [...state.cloning, action.payload] };
+    case 'removeCloning':
+      return {
+        ...state,
+        cloning: state.cloning.filter(r => r !== action.payload)
+      };
     default:
       return { ...state };
   }
