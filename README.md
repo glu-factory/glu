@@ -1,6 +1,4 @@
-<p align="center">
-  <img height="250" src="https://raw.githubusercontent.com/glu-factory/glu/master/logo.jpeg">
-</p>
+<img width="100%" src="https://raw.githubusercontent.com/glu-factory/glu/master/header.jpeg">
 
 > develop graphical user interfaces for your favourite command line tools
 
