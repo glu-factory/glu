@@ -72,7 +72,7 @@ function HomePage() {
     );
   }, []);
 
-  const launch = async template => {
+  const createFromTemplate = async template => {
     const { login } = user;
     const name =
       prompt('Name this project..') ||
@@ -80,16 +80,6 @@ function HomePage() {
     const dest = `${window.glu.APPDATA}/${login}@${name}`;
     await glu(`mkdir "${dest}"`);
     await glu(`cp -r ${__dirname}/templates/${template}/. "${dest}/"`);
-  };
-
-  const publish = async template => {
-    // glu('git config user.name')(async user => {
-    //   const name = prompt('Name this project..');
-    //   const pass = prompt('Enter GitHub password for CURL');
-    //   glu(
-    //     `curl -u '${user.trim()}:${pass}' https://api.github.com/user/repos -d '{"name":"${name}","private":"true"}'`
-    //   )(console.log);
-    // });
   };
 
   const Footer = () => html`
@@ -120,7 +110,7 @@ function HomePage() {
       ${templates.map(
         x =>
           html`
-            <button onClick=${() => launch(x)} key=${x}>
+            <button onClick=${() => createFromTemplate(x)} key=${x}>
               <img src="/icons/${x}.png" />
             </button>
           `
@@ -142,7 +132,7 @@ function HomePage() {
                           <${Template}
                             key=${x}
                             template=${x}
-                            launch=${launch}
+                            createFromTemplate=${createFromTemplate}
                           />
                         `
                     )}

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const APPDATA =
   process.env.APPDATA ||
@@ -29,19 +30,32 @@ function get() {
       fs
         .readdirSync(APPDATA)
         .filter(x => x.indexOf('.'))
-        .reduce(
-          (apps, dir) => ({
+        .reduce((apps, dir) => {
+          let diff = '';
+          try {
+            diff = execSync(
+              `cd "${path.join(
+                APPDATA,
+                dir
+              )}" && git ls-files -o 2>/dev/null && git diff --shortstat 2>/dev/null`
+            )
+              .toString()
+              .trim();
+          } catch {
+            diff = 'new';
+          }
+          return {
             ...apps,
             [dir]: {
               repo: dir.replace('@', '/'),
               name: dir.split('@')[1],
               user: dir.split('@')[0],
               path: path.join(APPDATA, dir),
-              mtime: +new Date(fs.statSync(path.join(APPDATA, dir)).mtime)
+              mtime: +new Date(fs.statSync(path.join(APPDATA, dir)).mtime),
+              diff
             }
-          }),
-          {}
-        )
+          };
+        }, {})
     )
   );
 }

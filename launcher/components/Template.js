@@ -45,9 +45,12 @@ const style = {
   `
 };
 
-const Template = ({ launch, template }) =>
+const Template = ({ createFromTemplate, template }) =>
   html`
-    <button onClick=${() => launch(template)} className=${style.template}>
+    <button
+      onClick=${() => createFromTemplate(template)}
+      className=${style.template}
+    >
       <img src=${`/icons/${template}.png`} />
       <div>
         <span>${template}</span>
