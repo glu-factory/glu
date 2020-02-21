@@ -61,7 +61,7 @@ This is especially convenient when working with commands that return a single va
 
 #### glu(cmd, callback)
 
-For long running processes that might return multiple values before exiting, then provide a callback function. The callback function is called every time the child process prints to `stdout` or `stderr`. This happens until the child process exits.
+For long running processes that might return multiple values before exiting, glu provides a callback function. The callback function is called every time the child process prints to `stdout` or `stderr`. This happens until the child process exits.
 
 ```js
 glu('ping google.com', ([stdout, stderr]) => {
