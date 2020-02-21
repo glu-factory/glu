@@ -72,7 +72,7 @@ function HomePage() {
     );
   }, []);
 
-  const launch = async template => {
+  const createFromTemplate = async template => {
     const { login } = user;
     const name =
       prompt('Name this project..') ||
@@ -110,7 +110,7 @@ function HomePage() {
       ${templates.map(
         x =>
           html`
-            <button onClick=${() => launch(x)} key=${x}>
+            <button onClick=${() => createFromTemplate(x)} key=${x}>
               <img src="/icons/${x}.png" />
             </button>
           `
@@ -132,7 +132,7 @@ function HomePage() {
                           <${Template}
                             key=${x}
                             template=${x}
-                            launch=${launch}
+                            createFromTemplate=${createFromTemplate}
                           />
                         `
                     )}
